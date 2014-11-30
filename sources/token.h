@@ -3,7 +3,7 @@
 
 #include <string>
 
-enum TokenType
+enum class TokenType
 {
     OPERATOR,
     NUMBER

@@ -55,7 +55,7 @@ Token Lexer::parseNumber()
     }
 
     skipSpaces();
-    return Token{NUMBER, num};
+    return Token(TokenType::NUMBER, num);
 }
 
 Token Lexer::parseOperator()
@@ -64,7 +64,7 @@ Token Lexer::parseOperator()
     if (!validOperators.count(nextAsString)) {
         throw InvalidInputException("Invalid operator type: " + next_);
     }
-    Token result = Token{OPERATOR, nextAsString};
+    Token result = Token(TokenType::OPERATOR, nextAsString);
     advance();
     skipSpaces();
     return result;

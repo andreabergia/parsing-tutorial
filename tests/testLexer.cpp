@@ -8,7 +8,7 @@ const lest::test specification[] = {
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
 
-        EXPECT(lexer.nextToken() == Token(NUMBER, "1"));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "1"));
 
         EXPECT_NOT(lexer.hasNextToken());
     },
@@ -18,13 +18,13 @@ const lest::test specification[] = {
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
 
-        EXPECT(lexer.nextToken() == Token(NUMBER, "1"));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "1"));
         EXPECT(lexer.hasNextToken());
 
-        EXPECT(lexer.nextToken() == Token(OPERATOR, "+"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "+"));
         EXPECT(lexer.hasNextToken());
 
-        EXPECT(lexer.nextToken() == Token(NUMBER, "23"));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "23"));
         EXPECT_NOT(lexer.hasNextToken());
     },
 
@@ -33,13 +33,13 @@ const lest::test specification[] = {
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
 
-        EXPECT(lexer.nextToken() == Token(OPERATOR, "("));
-        EXPECT(lexer.nextToken() == Token(NUMBER, "1"));
-        EXPECT(lexer.nextToken() == Token(OPERATOR, "+"));
-        EXPECT(lexer.nextToken() == Token(NUMBER, "23"));
-        EXPECT(lexer.nextToken() == Token(OPERATOR, ")"));
-        EXPECT(lexer.nextToken() == Token(OPERATOR, "*"));
-        EXPECT(lexer.nextToken() == Token(NUMBER, "4"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "("));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "1"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "+"));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "23"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, ")"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "*"));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "4"));
 
         EXPECT_NOT(lexer.hasNextToken());
     },
@@ -49,7 +49,7 @@ const lest::test specification[] = {
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
 
-        EXPECT(lexer.nextToken() == Token(NUMBER, "1"));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "1"));
         EXPECT_THROWS_AS(lexer.nextToken(), InvalidInputException);
     }
 };
