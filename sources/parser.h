@@ -6,12 +6,15 @@
 class Parser
 {
 public:
-    Parser(std::istream &istream);
+    Parser(std::istream& istream);
 
     int evalNextExpression();
 
 private:
     Lexer lexer_;
+
+    int evalNextTerm();
+    int handleAdditionSubtraction(int currValue);
 };
 
 #endif
