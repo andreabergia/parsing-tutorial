@@ -54,6 +54,7 @@ const lest::test testParser[] = {
 
         EXPECT(35 == parser.evalNextExpression());
     },
+
     CASE("parsing '(1") {
         std::istringstream input{"(1"};
         Parser parser(input);
