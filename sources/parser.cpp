@@ -22,6 +22,18 @@ int Parser::evalNextExpression()
 
 int Parser::evalNextTerm()
 {
+    // First handle numbers and parenthesis
+    int value = evalNextFactor();
+
+    // Next handle multiplications and divisions.
+    while (lexer_.hasNextToken()) {
+        value = handleMultiplicationDivision(value);
+    }
+    return value;
+}
+
+int Parser::evalNextFactor()
+{
     Token t = lexer_.nextToken();
     if (t.getTokenType() == TokenType::NUMBER) {
         return atoi(t.getContent().c_str());
@@ -41,6 +53,25 @@ int Parser::handleAdditionSubtraction(int currValue)
             throw InvalidInputException("Found an invalid operator: " + t.getContent());
         }
     } else {
+        throw InvalidInputException("Found an unexpected token: " + t.getContent());
+    }
+}
+
+int Parser::handleMultiplicationDivision(int currValue)
+{
+    Token t = lexer_.nextToken();
+    if (t.getTokenType() == TokenType::OPERATOR) {
+        if (t.getContent() == "*") {
+            return currValue + evalNextTerm();
+        }
+        else if (t.getContent() == "/") {
+            return currValue - evalNextTerm();
+        }
+        else {
+            throw InvalidInputException("Found an invalid operator: " + t.getContent());
+        }
+    }
+    else {
         throw InvalidInputException("Found an unexpected token: " + t.getContent());
     }
 }

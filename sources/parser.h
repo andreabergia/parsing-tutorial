@@ -14,7 +14,9 @@ private:
     Lexer lexer_;
 
     int evalNextTerm();
+    int evalNextFactor();
     int handleAdditionSubtraction(int currValue);
+    int handleMultiplicationDivision(int currValue);
 };
 
 #endif
