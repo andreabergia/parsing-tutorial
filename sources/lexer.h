@@ -16,6 +16,7 @@ private:
     bool atEof_;
 
     void advance();
+    void skipSpaces();
     Token parseNumber();
     Token parseOperator();
 };

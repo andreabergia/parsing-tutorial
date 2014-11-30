@@ -13,8 +13,8 @@ const lest::test specification[] = {
         EXPECT_NOT(lexer.hasNextToken());
     },
 
-    CASE("parsing '1+23'") {
-        std::istringstream input{"1+23"};
+    CASE("parsing '1 + 23'") {
+        std::istringstream input{"1 + 23"};
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
 
@@ -28,8 +28,8 @@ const lest::test specification[] = {
         EXPECT_NOT(lexer.hasNextToken());
     },
 
-    CASE("parsing '(1+23)*4'") {
-        std::istringstream input{"(1+23)*4"};
+    CASE("parsing ' (1 + 23) *   4 '") {
+        std::istringstream input{" (1 + 23) *   4 "};
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
 

@@ -8,12 +8,20 @@ Lexer::Lexer(std::istream& istream)
     : istream_(istream), atEof_(false)
 {
     advance();
+    skipSpaces();
 }
 
 void Lexer::advance()
 {
     next_ = static_cast<char>(istream_.get());
     atEof_ = istream_.eof();
+}
+
+void Lexer::skipSpaces()
+{
+    while (!atEof_ && std::isspace(next_)) {
+        advance();
+    }
 }
 
 bool Lexer::hasNextToken() const
@@ -42,6 +50,7 @@ Token Lexer::parseNumber()
         advance();
     }
 
+    skipSpaces();
     return Token{NUMBER, num};
 }
 
@@ -49,5 +58,6 @@ Token Lexer::parseOperator()
 {
     Token result = Token{OPERATOR, std::string{next_}};
     advance();
+    skipSpaces();
     return result;
 }
