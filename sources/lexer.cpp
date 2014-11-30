@@ -60,12 +60,11 @@ Token Lexer::parseNumber()
 
 Token Lexer::parseOperator()
 {
-    std::string nextAsString = std::string{next_};
-    if (!validOperators.count(nextAsString)) {
-        throw InvalidInputException("Invalid operator type: " + next_);
+    std::string operatorText = std::string{next_};
+    if (!validOperators.count(operatorText)) {
+        throw InvalidInputException("Invalid operator type: " + operatorText);
     }
-    Token result = Token(TokenType::OPERATOR, nextAsString);
     advance();
     skipSpaces();
-    return result;
+    return Token(TokenType::OPERATOR, operatorText);
 }
