@@ -6,10 +6,10 @@
 #include "exceptions.h"
 
 const lest::test testParser[] = {
-    CASE("parsing '1'") {
-        std::istringstream input{"1"};
+    CASE("parsing '13'") {
+        std::istringstream input{"13"};
         Parser parser(input);
-        EXPECT(1 == parser.evalNextExpression());
+        EXPECT(13 == parser.evalNextExpression());
     },
 
     CASE("parsing '1 + 23'") {
