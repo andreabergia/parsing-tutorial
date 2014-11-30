@@ -1,6 +1,9 @@
 #include <sstream>
+
 #include "lest.hpp"
+
 #include "lexer.h"
+#include "exceptions.h"
 
 const lest::test specification[] = {
     CASE("parsing '1'") {
@@ -51,6 +54,14 @@ const lest::test specification[] = {
 
         EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "1"));
         EXPECT_THROWS_AS(lexer.nextToken(), InvalidInputException);
+    },
+
+    CASE("reading past eOF") {
+        std::istringstream input{ "1" };
+        Lexer lexer(input);
+        lexer.nextToken();
+        EXPECT_NOT(lexer.hasNextToken());
+        EXPECT_THROWS_AS(lexer.nextToken(), ReadingPastEofException);
     }
 };
 

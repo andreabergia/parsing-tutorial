@@ -1,10 +1,10 @@
 #include <istream>
-#include <stdexcept>
 #include <cctype>
 #include <string>
 #include <set>
 
 #include "lexer.h"
+#include "exceptions.h"
 
 static std::set<std::string> validOperators = {"+", "-", "*", "/", "(", ")"};
 
@@ -36,7 +36,7 @@ bool Lexer::hasNextToken() const
 Token Lexer::nextToken()
 {
     if (atEof_) {
-        throw std::runtime_error("EOF");
+        throw ReadingPastEofException();
     }
 
     if (std::isdigit(next_)) {

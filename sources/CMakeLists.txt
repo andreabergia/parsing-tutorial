@@ -1,4 +1,5 @@
 add_library (derivativeLib
+                exceptions.h
                 token.h
                 lexer.h lexer.cpp)
 
