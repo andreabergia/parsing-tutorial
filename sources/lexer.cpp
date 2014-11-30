@@ -36,7 +36,7 @@ bool Lexer::hasNextToken() const
 Token Lexer::nextToken()
 {
     if (atEof_) {
-        throw ReadingPastEofException();
+        return Token(TokenType::END_OF_INPUT, "");
     }
 
     if (std::isdigit(next_)) {

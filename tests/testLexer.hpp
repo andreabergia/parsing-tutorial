@@ -61,6 +61,7 @@ const lest::test testLexer[] = {
         Lexer lexer(input);
         lexer.nextToken();
         EXPECT_NOT(lexer.hasNextToken());
-        EXPECT_THROWS_AS(lexer.nextToken(), ReadingPastEofException);
+        EXPECT(lexer.nextToken() == Token(TokenType::END_OF_INPUT, ""));
+        EXPECT_NOT(lexer.hasNextToken());
     }
 };
