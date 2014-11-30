@@ -36,6 +36,12 @@ const lest::test testParser[] = {
         EXPECT(7 == parser.evalNextExpression());
     },
 
+    CASE("parsing '(54)'") {
+        std::istringstream input{"(54)"};
+        Parser parser(input);
+        EXPECT(54 == parser.evalNextExpression());
+    },
+
     CASE("parsing ' (1 + 23) *   4 '") {
         std::istringstream input{" (1 + 23) *   4 "};
         Parser parser(input);
@@ -44,9 +50,14 @@ const lest::test testParser[] = {
 
     CASE("parsing '((2 + 3) * (3 + 4))") {
         std::istringstream input{"((2 + 3) * (3 + 4))"};
-        Lexer lexer(input);
         Parser parser(input);
 
-        EXPECT(42 == parser.evalNextExpression());
+        EXPECT(35 == parser.evalNextExpression());
+    },
+    CASE("parsing '(1") {
+        std::istringstream input{"(1"};
+        Parser parser(input);
+
+        EXPECT_THROWS_AS(parser.evalNextExpression(), InvalidInputException);
     }
 };

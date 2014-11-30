@@ -66,10 +66,27 @@ int Parser::evalNextTerm()
 
 int Parser::evalNextFactor()
 {
-    Token currToken = nextToken_;
-    if (currToken.getTokenType() == TokenType::NUMBER) {
+    if (nextToken_.getTokenType() == TokenType::NUMBER) {
+        int value = atoi(nextToken_.getContent().c_str());
         advance();
-        return atoi(currToken.getContent().c_str());
+        return value;
+    } else if (nextToken_.getTokenType()== TokenType::OPERATOR
+        && nextToken_.getContent() == "(") {
+        // We match the '(' via advance; parse an expression; then match the ')'
+        advance();
+        
+        int value = evalNextExpression();
+
+        if (!hasNextToken_ 
+            || nextToken_.getTokenType() != TokenType::OPERATOR 
+            || nextToken_.getContent() != ")") {
+            throw InvalidInputException("Expected a closed parenthesis but found token: " + nextToken_.getContent());
+        }
+        advance();
+
+        return value;
     }
-    throw InvalidInputException("Found an unexpected token: " + currToken.getContent());
+    else {
+        throw InvalidInputException("Found an unexpected token: " + nextToken_.getContent());
+    }
 }
