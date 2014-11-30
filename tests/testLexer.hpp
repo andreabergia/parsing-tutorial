@@ -5,8 +5,8 @@
 #include "lexer.h"
 #include "exceptions.h"
 
-const lest::test specification[] = {
-    CASE("parsing '1'") {
+const lest::test testLexer[] = {
+    CASE("lexing '1'") {
         std::istringstream input{"1"};
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
@@ -16,7 +16,7 @@ const lest::test specification[] = {
         EXPECT_NOT(lexer.hasNextToken());
     },
 
-    CASE("parsing '1 + 23'") {
+    CASE("lexing '1 + 23'") {
         std::istringstream input{"1 + 23"};
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
@@ -31,7 +31,7 @@ const lest::test specification[] = {
         EXPECT_NOT(lexer.hasNextToken());
     },
 
-    CASE("parsing ' (1 + 23) *   4 '") {
+    CASE("lexing ' (1 + 23) *   4 '") {
         std::istringstream input{" (1 + 23) *   4 "};
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
@@ -47,7 +47,7 @@ const lest::test specification[] = {
         EXPECT_NOT(lexer.hasNextToken());
     },
 
-    CASE("parsing '1 % 5") {
+    CASE("lexing '1 % 5") {
         std::istringstream input{"1 % 5"};
         Lexer lexer(input);
         EXPECT(lexer.hasNextToken());
@@ -56,16 +56,11 @@ const lest::test specification[] = {
         EXPECT_THROWS_AS(lexer.nextToken(), InvalidInputException);
     },
 
-    CASE("reading past eOF") {
-        std::istringstream input{ "1" };
+    CASE("lexing past eOF") {
+        std::istringstream input{"1"};
         Lexer lexer(input);
         lexer.nextToken();
         EXPECT_NOT(lexer.hasNextToken());
         EXPECT_THROWS_AS(lexer.nextToken(), ReadingPastEofException);
     }
 };
-
-int main(int argc, char* argv[])
-{
-    return lest::run(specification, argc, argv);
-}
