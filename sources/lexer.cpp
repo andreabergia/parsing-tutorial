@@ -1,8 +1,12 @@
 #include <istream>
 #include <stdexcept>
 #include <cctype>
+#include <string>
+#include <set>
 
 #include "lexer.h"
+
+static std::set<std::string> validOperators = {"+", "-", "*", "/", "(", ")"};
 
 Lexer::Lexer(std::istream& istream)
     : istream_(istream), atEof_(false)
@@ -56,7 +60,11 @@ Token Lexer::parseNumber()
 
 Token Lexer::parseOperator()
 {
-    Token result = Token{OPERATOR, std::string{next_}};
+    std::string nextAsString = std::string{next_};
+    if (!validOperators.count(nextAsString)) {
+        throw InvalidInputException("Invalid operator type: " + next_);
+    }
+    Token result = Token{OPERATOR, nextAsString};
     advance();
     skipSpaces();
     return result;

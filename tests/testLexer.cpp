@@ -42,6 +42,15 @@ const lest::test specification[] = {
         EXPECT(lexer.nextToken() == Token(NUMBER, "4"));
 
         EXPECT_NOT(lexer.hasNextToken());
+    },
+
+    CASE("parsing '1 % 5") {
+        std::istringstream input{"1 % 5"};
+        Lexer lexer(input);
+        EXPECT(lexer.hasNextToken());
+
+        EXPECT(lexer.nextToken() == Token(NUMBER, "1"));
+        EXPECT_THROWS_AS(lexer.nextToken(), InvalidInputException);
     }
 };
 
