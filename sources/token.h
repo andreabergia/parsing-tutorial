@@ -6,7 +6,8 @@
 enum class TokenType
 {
     OPERATOR,
-    NUMBER
+    NUMBER,
+    END_OF_INPUT
 };
 
 class Token

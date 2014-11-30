@@ -6,6 +6,18 @@
 Parser::Parser(std::istream& istream)
     :lexer_(istream)
 {
+    advance();
+}
+
+void Parser::advance()
+{
+    if (lexer_.hasNextToken()) {
+        nextToken_ = lexer_.nextToken();
+        hasNextToken_ = true;
+    } else {
+        nextToken_ = Token(TokenType::END_OF_INPUT, "");
+        hasNextToken_ = false;
+    }
 }
 
 int Parser::evalNextExpression()
@@ -14,9 +26,19 @@ int Parser::evalNextExpression()
     int value = evalNextTerm();
 
     // Next handle additions and subtractions. They have lower precedences, so they are handled AFTER.
-    while (lexer_.hasNextToken()) {
-       value = handleAdditionSubtraction(value);
+    while (hasNextToken_ && nextToken_.getTokenType() == TokenType::OPERATOR) {
+        if (nextToken_.getContent() == "+") {
+            advance();
+            value += evalNextTerm();
+        } else if (nextToken_.getContent() == "-") {
+            advance();
+            value -= evalNextTerm();
+        } else {
+            // An operator, but not '+' or '-': let the caller handle it.
+            break;
+        }
     }
+
     return value;
 }
 
@@ -25,53 +47,29 @@ int Parser::evalNextTerm()
     // First handle numbers and parenthesis
     int value = evalNextFactor();
 
-    // Next handle multiplications and divisions.
-    while (lexer_.hasNextToken()) {
-        value = handleMultiplicationDivision(value);
+    // Next handle multiplications and divisions
+    while (hasNextToken_ && nextToken_.getTokenType() == TokenType::OPERATOR) {
+        if (nextToken_.getContent() == "*") {
+            advance();
+            value *= evalNextFactor();
+        } else if (nextToken_.getContent() == "/") {
+            advance();
+            value /= evalNextFactor();
+        } else {
+            // An operator, but not '*' or '/': let the caller handle it.
+            break;
+        }
     }
+
     return value;
 }
 
 int Parser::evalNextFactor()
 {
-    Token t = lexer_.nextToken();
-    if (t.getTokenType() == TokenType::NUMBER) {
-        return atoi(t.getContent().c_str());
+    Token currToken = nextToken_;
+    if (currToken.getTokenType() == TokenType::NUMBER) {
+        advance();
+        return atoi(currToken.getContent().c_str());
     }
-    throw InvalidInputException("Found an unexpected token: " + t.getContent());
-}
-
-int Parser::handleAdditionSubtraction(int currValue)
-{
-    Token t = lexer_.nextToken();
-    if (t.getTokenType() == TokenType::OPERATOR) {
-        if (t.getContent() == "+") {
-            return currValue + evalNextTerm();
-        } else if (t.getContent() == "-") {
-            return currValue - evalNextTerm();
-        } else {
-            throw InvalidInputException("Found an invalid operator: " + t.getContent());
-        }
-    } else {
-        throw InvalidInputException("Found an unexpected token: " + t.getContent());
-    }
-}
-
-int Parser::handleMultiplicationDivision(int currValue)
-{
-    Token t = lexer_.nextToken();
-    if (t.getTokenType() == TokenType::OPERATOR) {
-        if (t.getContent() == "*") {
-            return currValue + evalNextTerm();
-        }
-        else if (t.getContent() == "/") {
-            return currValue - evalNextTerm();
-        }
-        else {
-            throw InvalidInputException("Found an invalid operator: " + t.getContent());
-        }
-    }
-    else {
-        throw InvalidInputException("Found an unexpected token: " + t.getContent());
-    }
+    throw InvalidInputException("Found an unexpected token: " + currToken.getContent());
 }
