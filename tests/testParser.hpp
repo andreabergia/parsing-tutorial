@@ -18,8 +18,20 @@ const lest::test testParser[] = {
         EXPECT(24 == parser.evalNextExpression());
     },
 
+    CASE("parsing '12 + 100 - 99'") {
+        std::istringstream input{ "12 + 100 - 99" };
+        Parser parser(input);
+        EXPECT(13 == parser.evalNextExpression());
+    },
+
     CASE("parsing '3 * 2 + 1'") {
         std::istringstream input{ "3 * 2 + 1" };
+        Parser parser(input);
+        EXPECT(7 == parser.evalNextExpression());
+    },
+
+    CASE("parsing '1 + 3 * 2'") {
+        std::istringstream input{ "1 + 3 * 2" };
         Parser parser(input);
         EXPECT(7 == parser.evalNextExpression());
     },
