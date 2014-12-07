@@ -20,10 +20,10 @@ void Parser::advance()
     }
 }
 
-int Parser::evalNextExpression()
+double Parser::evalNextExpression()
 {
     // First handle multiplication and parenthesis
-    int value = evalNextTerm();
+    double value = evalNextTerm();
 
     // Next handle additions and subtractions. They have lower precedences, so they are handled AFTER.
     while (hasNextToken_ && nextToken_.getTokenType() == TokenType::OPERATOR) {
@@ -42,10 +42,10 @@ int Parser::evalNextExpression()
     return value;
 }
 
-int Parser::evalNextTerm()
+double Parser::evalNextTerm()
 {
     // First handle numbers and parenthesis
-    int value = evalNextFactor();
+    double value = evalNextFactor();
 
     // Next handle multiplications and divisions
     while (hasNextToken_ && nextToken_.getTokenType() == TokenType::OPERATOR) {
@@ -64,10 +64,10 @@ int Parser::evalNextTerm()
     return value;
 }
 
-int Parser::evalNextFactor()
+double Parser::evalNextFactor()
 {
     if (nextToken_.getTokenType() == TokenType::NUMBER) {
-        int value = atoi(nextToken_.getContent().c_str());
+        double value = atoi(nextToken_.getContent().c_str());
         advance();
         return value;
     } else if (nextToken_.getTokenType()== TokenType::OPERATOR
@@ -75,7 +75,7 @@ int Parser::evalNextFactor()
         // We match the '(' via advance; parse an expression; then match the ')'
         advance();
         
-        int value = evalNextExpression();
+        double value = evalNextExpression();
 
         if (!hasNextToken_ 
             || nextToken_.getTokenType() != TokenType::OPERATOR 

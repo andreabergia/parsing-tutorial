@@ -16,6 +16,16 @@ const lest::test testLexer[] = {
         EXPECT_NOT(lexer.hasNextToken());
     },
 
+    CASE("lexing '3.14'") {
+        std::istringstream input{"3.14"};
+        Lexer lexer(input);
+        EXPECT(lexer.hasNextToken());
+
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "3.14"));
+
+        EXPECT_NOT(lexer.hasNextToken());
+    },
+
     CASE("lexing '1 + 23'") {
         std::istringstream input{"1 + 23"};
         Lexer lexer(input);
@@ -28,6 +38,19 @@ const lest::test testLexer[] = {
         EXPECT(lexer.hasNextToken());
 
         EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "23"));
+        EXPECT_NOT(lexer.hasNextToken());
+    },
+
+    CASE("lexing '2.3 * 1 + 4'") {
+        std::istringstream input{"2.3 * 1 + 4"};
+        Lexer lexer(input);
+        EXPECT(lexer.hasNextToken());
+
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "2.3"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "*"));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "1"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "+"));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "4"));
         EXPECT_NOT(lexer.hasNextToken());
     },
 

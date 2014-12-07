@@ -10,7 +10,7 @@ class Parser
 public:
     Parser(std::istream& istream);
 
-    int evalNextExpression();
+    double evalNextExpression();
 
 private:
     Lexer lexer_;
@@ -19,8 +19,8 @@ private:
 
     void advance();
 
-    int evalNextTerm();
-    int evalNextFactor();
+    double evalNextTerm();
+    double evalNextFactor();
 };
 
 #endif
