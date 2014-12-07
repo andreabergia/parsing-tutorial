@@ -67,7 +67,7 @@ double Parser::evalNextTerm()
 double Parser::evalNextFactor()
 {
     if (nextToken_.getTokenType() == TokenType::NUMBER) {
-        double value = atoi(nextToken_.getContent().c_str());
+        double value = atof(nextToken_.getContent().c_str());
         advance();
         return value;
     } else if (nextToken_.getTokenType()== TokenType::OPERATOR
