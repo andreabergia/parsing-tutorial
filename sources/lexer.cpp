@@ -49,9 +49,21 @@ Token Lexer::nextToken()
 Token Lexer::parseNumber()
 {
     std::string num;
+
+    // Integer part
     while (!atEof_ && isdigit(next_)) {
         num += next_;
         advance();
+    }
+
+    // Dot and floating part?
+    if (!atEof_ && next_ == '.') {
+        num += '.';
+        advance();
+        while (!atEof_ && isdigit(next_)) {
+            num += next_;
+            advance();
+        }
     }
 
     skipSpaces();
