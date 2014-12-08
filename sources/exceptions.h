@@ -7,8 +7,14 @@
 class InvalidInputException : public std::runtime_error
 {
 public:
-    InvalidInputException(const std::string reason) : runtime_error(reason)
-    {
+    InvalidInputException(const std::string reason) : runtime_error(reason) {
+    }
+};
+
+class UnknownFunctionName : public std::runtime_error
+{
+public:
+    UnknownFunctionName(const std::string name) : runtime_error("Unknown function: " + name) {
     }
 };
 

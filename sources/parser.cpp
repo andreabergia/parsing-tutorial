@@ -70,23 +70,53 @@ double Parser::evalNextFactor()
         double value = atof(nextToken_.getContent().c_str());
         advance();
         return value;
-    } else if (nextToken_.getTokenType()== TokenType::OPERATOR
+    } else if (nextToken_.getTokenType()  == TokenType::OPERATOR
         && nextToken_.getContent() == "(") {
-        // We match the '(' via advance; parse an expression; then match the ')'
-        advance();
-        
-        double value = evalNextExpression();
-
-        if (!hasNextToken_ 
-            || nextToken_.getTokenType() != TokenType::OPERATOR 
-            || nextToken_.getContent() != ")") {
-            throw InvalidInputException("Expected a closed parenthesis but found token: " + nextToken_.getContent());
-        }
-        advance();
-
-        return value;
-    }
-    else {
+        return evalNextParenthesisFactor();
+    } else if (nextToken_.getTokenType() == TokenType::IDENTIFIER) {
+        return evalNextFunctionCall();
+    } else {
         throw InvalidInputException("Found an unexpected token: " + nextToken_.getContent());
     }
+}
+
+double Parser::evalNextParenthesisFactor()
+{
+    // We match the '(' via advance; parse an expression; then match the ')'
+    advance();
+
+    double value = evalNextExpression();
+
+    if (!hasNextToken_
+            || nextToken_.getTokenType() != TokenType::OPERATOR
+            || nextToken_.getContent() != ")") {
+        throw InvalidInputException("Expected a closed parenthesis but found token: " + nextToken_.getContent());
+    }
+    advance();
+
+    return value;
+}
+
+double Parser::evalNextFunctionCall() {
+    // Match the function name
+    std::string functionName = nextToken_.getContent();
+    advance();
+
+    // Is it a valid function?
+    doubleToDoubleFunction f = lookupFunctionByName(functionName);
+
+    // Eval its argument
+    double argumentValue = evalNextFactor();
+
+    // Call the function!
+    return f(argumentValue);
+}
+
+Parser::doubleToDoubleFunction Parser::lookupFunctionByName(const std::string &name)
+{
+    auto it = functions_.find(name);
+    if (it == functions_.end()) {
+        throw UnknownFunctionName(name);
+    }
+    return it->second;
 }

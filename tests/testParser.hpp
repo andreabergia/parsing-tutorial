@@ -1,4 +1,5 @@
 #include <sstream>
+#include <cmath>
 
 #include "lest.hpp"
 using lest::approx;
@@ -69,8 +70,36 @@ const lest::test testParser[] = {
         EXPECT(approx(2) == parser.evalNextExpression());
     },
 
+    CASE("parsing 'exp 1") {
+        std::istringstream input{"exp 1"};
+        Parser parser(input);
+
+        EXPECT(approx(M_E) == parser.evalNextExpression());
+    },
+
+    CASE("parsing 'foo 1") {
+        std::istringstream input{"foo 1"};
+        Parser parser(input);
+
+        EXPECT_THROWS_AS(parser.evalNextExpression(), UnknownFunctionName);
+    },
+
+    CASE("parsing 'sin(2 * 3.141592653)") {
+        std::istringstream input{"sin(2 * 3.141592653)"};
+        Parser parser(input);
+
+        EXPECT(approx(0.) == parser.evalNextExpression());
+    },
+
     CASE("parsing '(1") {
         std::istringstream input{"(1"};
+        Parser parser(input);
+
+        EXPECT_THROWS_AS(parser.evalNextExpression(), InvalidInputException);
+    },
+
+    CASE("parsing 'exp") {
+        std::istringstream input{"exp"};
         Parser parser(input);
 
         EXPECT_THROWS_AS(parser.evalNextExpression(), InvalidInputException);
