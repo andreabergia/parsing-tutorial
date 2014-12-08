@@ -19,6 +19,11 @@ private:
     void skipSpaces();
     Token parseNumber();
     Token parseOperator();
+
+    bool isIdentifierStart(char candidate) const;
+    bool isIdentifierPart(char candidate) const;
+
+    Token parseIdentifier();
 };
 
 #endif

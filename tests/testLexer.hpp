@@ -26,6 +26,18 @@ const lest::test testLexer[] = {
         EXPECT_NOT(lexer.hasNextToken());
     },
 
+    CASE("lexing 'sin x'") {
+        std::istringstream input{"sin x"};
+        Lexer lexer(input);
+        EXPECT(lexer.hasNextToken());
+
+        EXPECT(lexer.nextToken() == Token(TokenType::IDENTIFIER, "sin"));
+        EXPECT(lexer.hasNextToken());
+
+        EXPECT(lexer.nextToken() == Token(TokenType::IDENTIFIER, "x"));
+        EXPECT_NOT(lexer.hasNextToken());
+    },
+
     CASE("lexing '1 + 23'") {
         std::istringstream input{"1 + 23"};
         Lexer lexer(input);
@@ -66,6 +78,24 @@ const lest::test testLexer[] = {
         EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, ")"));
         EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "*"));
         EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "4"));
+
+        EXPECT_NOT(lexer.hasNextToken());
+    },
+
+    CASE("lexing 'cos (3 * x ) + sin x'") {
+        std::istringstream input{"cos (3 * x ) + sin x"};
+        Lexer lexer(input);
+        EXPECT(lexer.hasNextToken());
+
+        EXPECT(lexer.nextToken() == Token(TokenType::IDENTIFIER, "cos"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "("));
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "3"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "*"));
+        EXPECT(lexer.nextToken() == Token(TokenType::IDENTIFIER, "x"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, ")"));
+        EXPECT(lexer.nextToken() == Token(TokenType::OPERATOR, "+"));
+        EXPECT(lexer.nextToken() == Token(TokenType::IDENTIFIER, "sin"));
+        EXPECT(lexer.nextToken() == Token(TokenType::IDENTIFIER, "x"));
 
         EXPECT_NOT(lexer.hasNextToken());
     },
