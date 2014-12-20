@@ -128,5 +128,26 @@ const lest::test testLexer[] = {
         EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "3"));
 
         EXPECT_NOT(lexer.hasNextToken());
+    },
+
+    CASE("lexing '3\r\nb'") {
+        std::istringstream input{"3\r\nb"};
+        Lexer lexer(input);
+        EXPECT(lexer.hasNextToken());
+
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "3"));
+        EXPECT(lexer.nextToken() == Token(TokenType::END_OF_LINE, ""));
+        EXPECT(lexer.nextToken() == Token(TokenType::IDENTIFIER, "b"));
+
+        EXPECT_NOT(lexer.hasNextToken());
+    },
+
+    CASE("lexing '3\r1'") {
+        std::istringstream input{"3\r1"};
+        Lexer lexer(input);
+        EXPECT(lexer.hasNextToken());
+
+        EXPECT(lexer.nextToken() == Token(TokenType::NUMBER, "3"));
+        EXPECT_THROWS_AS(lexer.nextToken(), InvalidInputException);
     }
 };

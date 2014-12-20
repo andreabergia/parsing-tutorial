@@ -92,6 +92,12 @@ Token Lexer::parseIdentifier()
 
 Token Lexer::parseNewLine()
 {
+    if (next_ == '\r') {
+        advance();
+        if (next_ != '\n') {
+            throw InvalidInputException("Expected a \n after a \r");
+        }
+    }
     advance();
     skipSpaces();
     return Token(TokenType::END_OF_LINE, "");
@@ -120,5 +126,5 @@ bool Lexer::isIdentifierPart(char candidate) const
 
 bool Lexer::isEol(char candidate) const
 {
-    return candidate == '\n';
+    return candidate == '\n' || candidate == '\r';
 }
