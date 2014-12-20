@@ -18,10 +18,12 @@ private:
     void advance();
     void skipSpaces();
     Token parseNumber();
+    Token parseNewLine();
     Token parseOperator();
 
     bool isIdentifierStart(char candidate) const;
     bool isIdentifierPart(char candidate) const;
+    bool isEol(char candidate) const;
 
     Token parseIdentifier();
 };

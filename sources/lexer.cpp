@@ -23,7 +23,7 @@ void Lexer::advance()
 
 void Lexer::skipSpaces()
 {
-    while (!atEof_ && std::isspace(next_)) {
+    while (!atEof_ && !isEol(next_) && std::isspace(next_)) {
         advance();
     }
 }
@@ -43,6 +43,8 @@ Token Lexer::nextToken()
         return parseNumber();
     } else if (isIdentifierStart(next_)) {
         return parseIdentifier();
+    } else if (isEol(next_)) {
+        return parseNewLine();
     } else {
         return parseOperator();
     }
@@ -88,6 +90,13 @@ Token Lexer::parseIdentifier()
     return Token(TokenType::IDENTIFIER, identifier);
 }
 
+Token Lexer::parseNewLine()
+{
+    advance();
+    skipSpaces();
+    return Token(TokenType::END_OF_LINE, "");
+}
+
 Token Lexer::parseOperator()
 {
     std::string operatorText = std::string{next_};
@@ -107,4 +116,9 @@ bool Lexer::isIdentifierStart(char candidate) const
 bool Lexer::isIdentifierPart(char candidate) const
 {
     return isIdentifierStart(candidate) || std::isdigit(candidate);
+}
+
+bool Lexer::isEol(char candidate) const
+{
+    return candidate == '\n';
 }

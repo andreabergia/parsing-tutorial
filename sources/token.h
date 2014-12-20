@@ -8,6 +8,7 @@ enum class TokenType
     OPERATOR,
     NUMBER,
     IDENTIFIER,
+    END_OF_LINE,
     END_OF_INPUT
 };
 
