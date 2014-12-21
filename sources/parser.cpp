@@ -1,10 +1,11 @@
 #include <cstdlib>
+#include <iostream>
 
 #include "parser.h"
 #include "exceptions.h"
 
-Parser::Parser(std::istream& istream)
-    :lexer_(istream)
+Parser::Parser(std::istream& istream, std::ostream &ostream)
+    :lexer_(istream), ostream_(ostream)
 {
     advance();
 }
@@ -17,6 +18,17 @@ void Parser::advance()
     } else {
         nextToken_ = Token(TokenType::END_OF_INPUT, "");
         hasNextToken_ = false;
+    }
+}
+
+
+void Parser::parseProgram()
+{
+    while (hasNextToken_) {
+        skipNewLines();
+        double value = evalNextExpression();
+        ostream_ << value << std::endl;
+        parseNewLine();
     }
 }
 
@@ -110,6 +122,25 @@ double Parser::evalNextFunctionCall() {
 
     // Call the function!
     return f(argumentValue);
+}
+
+void Parser::skipNewLines()
+{
+    while (hasNextToken_ && nextToken_.getTokenType() == TokenType::END_OF_LINE) {
+        advance();
+    }
+}
+
+void Parser::parseNewLine()
+{
+    if (!hasNextToken_) {
+        // Ok
+        return;
+    }
+    if (nextToken_.getTokenType() != TokenType::END_OF_LINE) {
+        throw InvalidInputException("Expected a newline");
+    }
+    advance();
 }
 
 Parser::doubleToDoubleFunction Parser::lookupFunctionByName(const std::string &name)
