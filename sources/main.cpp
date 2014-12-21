@@ -1,12 +1,11 @@
 #include <iostream>
-#include <cstdlib>
+
+#include "parser.h"
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Hello world!" << std::endl;
-
-    auto i = 42;
-    std::cout << i <<std::endl;
+    Parser parser(std::cin, std::cout);
+    parser.parseProgram();
 
     return 0;
 }
