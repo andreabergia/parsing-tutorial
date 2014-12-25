@@ -14,17 +14,15 @@ void Parser::advance()
 {
     if (lexer_.hasNextToken()) {
         nextToken_ = lexer_.nextToken();
-        hasNextToken_ = true;
     } else {
         nextToken_ = Token(TokenType::END_OF_INPUT, "");
-        hasNextToken_ = false;
     }
 }
 
 
 void Parser::parseProgram()
 {
-    while (hasNextToken_) {
+    while (hasNextToken()) {
         skipNewLines();
         double value = evalNextExpression();
         ostream_ << value << std::endl;
@@ -38,7 +36,7 @@ double Parser::evalNextExpression()
     double value = evalNextTerm();
 
     // Next handle additions and subtractions. They have lower precedences, so they are handled AFTER.
-    while (hasNextToken_ && nextToken_.getTokenType() == TokenType::OPERATOR) {
+    while (hasNextToken() && nextToken_.getTokenType() == TokenType::OPERATOR) {
         if (nextToken_.getContent() == "+") {
             advance();
             value += evalNextTerm();
@@ -60,7 +58,7 @@ double Parser::evalNextTerm()
     double value = evalNextFactor();
 
     // Next handle multiplications and divisions
-    while (hasNextToken_ && nextToken_.getTokenType() == TokenType::OPERATOR) {
+    while (hasNextToken() && nextToken_.getTokenType() == TokenType::OPERATOR) {
         if (nextToken_.getContent() == "*") {
             advance();
             value *= evalNextFactor();
@@ -99,7 +97,7 @@ double Parser::evalNextParenthesisFactor()
 
     double value = evalNextExpression();
 
-    if (!hasNextToken_
+    if (!hasNextToken()
             || nextToken_.getTokenType() != TokenType::OPERATOR
             || nextToken_.getContent() != ")") {
         throw InvalidInputException("Expected a closed parenthesis but found token: " + nextToken_.getContent());
@@ -126,14 +124,14 @@ double Parser::evalNextFunctionCall() {
 
 void Parser::skipNewLines()
 {
-    while (hasNextToken_ && nextToken_.getTokenType() == TokenType::END_OF_LINE) {
+    while (hasNextToken() && nextToken_.getTokenType() == TokenType::END_OF_LINE) {
         advance();
     }
 }
 
 void Parser::parseNewLine()
 {
-    if (!hasNextToken_) {
+    if (!hasNextToken()) {
         // Ok
         return;
     }

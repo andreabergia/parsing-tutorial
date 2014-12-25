@@ -23,7 +23,6 @@ private:
     std::ostream &ostream_;
     Lexer lexer_;
     Token nextToken_{TokenType::END_OF_INPUT, ""};
-    bool hasNextToken_{false};
     std::map<std::string, doubleToDoubleFunction> functions_ {
         {"exp", std::exp},
         {"log", std::log},
@@ -32,6 +31,7 @@ private:
         {"tan", std::tan}
     };
 
+    inline bool hasNextToken() const { return nextToken_.getTokenType() != TokenType::END_OF_INPUT; }
     void advance();
 
     double evalNextTerm();
