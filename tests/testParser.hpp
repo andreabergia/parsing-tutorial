@@ -112,5 +112,13 @@ const lest::test testParser[] = {
 
     CASE("parsing program EOL 3 EOL EOL 4 should print 3 EOL 4 EOL") {
         EXPECT("3\n4\n" == parseProgramOutput("\n3\n\n4"));
+    },
+
+    CASE("parsing program a = 3 EOL a * 7 should print 21 EOL") {
+        EXPECT("21\n" == parseProgramOutput("a = 3\na * 7\n"));
+    },
+
+    CASE("parsing program a = 3 EOL b = a * 7 EOL a = b + 1 EOL a should print 22 EOL") {
+        EXPECT("22\n" == parseProgramOutput("a = 3\nb = a * 7\na = b + 1\na"));
     }
 };

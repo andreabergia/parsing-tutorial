@@ -42,6 +42,8 @@ private:
     void advance();
     void match(TokenType tokenType, std::string content, std::string expected);
 
+    void parseAssignment();
+    void parseExpression();
     double evalNextTerm();
     double evalNextFactor();
     double evalNextParenthesisFactor();

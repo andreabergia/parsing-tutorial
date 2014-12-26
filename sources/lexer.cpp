@@ -6,7 +6,7 @@
 #include "lexer.h"
 #include "exceptions.h"
 
-static std::set<std::string> validOperators = {"+", "-", "*", "/", "(", ")"};
+static std::set<std::string> validOperators = {"+", "-", "*", "/", "(", ")", "="};
 
 Lexer::Lexer(std::istream& istream)
     : istream_(istream), atEof_(false)

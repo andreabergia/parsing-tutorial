@@ -41,10 +41,43 @@ void Parser::parseProgram()
 {
     while (hasNextToken()) {
         skipNewLines();
-        double value = evalNextExpression();
-        ostream_ << value << std::endl;
+
+        // Assignment?
+        if (hasNextToken()
+                && getNextToken().getTokenType() == TokenType::IDENTIFIER
+                && nextTokens_[1].getTokenType() == TokenType::OPERATOR
+                && nextTokens_[1].getContent() == "=") {
+            parseAssignment();
+        } else {
+            parseExpression();
+        }
         parseNewLine();
     }
+}
+
+void Parser::parseAssignment()
+{
+    // Match variable name
+    if (!hasNextToken() || getNextToken().getTokenType() != TokenType::IDENTIFIER){
+        throw InvalidInputException("Found an unexpected token: " + getNextToken().getContent());
+    }
+    std::string variableName = getNextToken().getContent();
+    advance();
+
+    // Match =
+    match(TokenType::OPERATOR, "=", "the assigment operator =");
+
+    // Get expression value
+    double value = evalNextExpression();
+
+    // Save the variable value
+    variables_[variableName] = value;
+}
+
+void Parser::parseExpression()
+{
+    double value = evalNextExpression();
+    ostream_ << value << std::endl;
 }
 
 double Parser::evalNextExpression()
