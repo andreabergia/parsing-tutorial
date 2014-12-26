@@ -36,11 +36,11 @@ double Parser::evalNextExpression()
     double value = evalNextTerm();
 
     // Next handle additions and subtractions. They have lower precedences, so they are handled AFTER.
-    while (hasNextToken() && nextToken_.getTokenType() == TokenType::OPERATOR) {
-        if (nextToken_.getContent() == "+") {
+    while (hasNextToken() && getNextToken().getTokenType() == TokenType::OPERATOR) {
+        if (getNextToken().getContent() == "+") {
             advance();
             value += evalNextTerm();
-        } else if (nextToken_.getContent() == "-") {
+        } else if (getNextToken().getContent() == "-") {
             advance();
             value -= evalNextTerm();
         } else {
@@ -58,11 +58,11 @@ double Parser::evalNextTerm()
     double value = evalNextFactor();
 
     // Next handle multiplications and divisions
-    while (hasNextToken() && nextToken_.getTokenType() == TokenType::OPERATOR) {
-        if (nextToken_.getContent() == "*") {
+    while (hasNextToken() && getNextToken().getTokenType() == TokenType::OPERATOR) {
+        if (getNextToken().getContent() == "*") {
             advance();
             value *= evalNextFactor();
-        } else if (nextToken_.getContent() == "/") {
+        } else if (getNextToken().getContent() == "/") {
             advance();
             value /= evalNextFactor();
         } else {
@@ -76,17 +76,17 @@ double Parser::evalNextTerm()
 
 double Parser::evalNextFactor()
 {
-    if (nextToken_.getTokenType() == TokenType::NUMBER) {
-        double value = atof(nextToken_.getContent().c_str());
+    if (getNextToken().getTokenType() == TokenType::NUMBER) {
+        double value = atof(getNextToken().getContent().c_str());
         advance();
         return value;
-    } else if (nextToken_.getTokenType()  == TokenType::OPERATOR
-        && nextToken_.getContent() == "(") {
+    } else if (getNextToken().getTokenType()  == TokenType::OPERATOR
+        && getNextToken().getContent() == "(") {
         return evalNextParenthesisFactor();
-    } else if (nextToken_.getTokenType() == TokenType::IDENTIFIER) {
+    } else if (getNextToken().getTokenType() == TokenType::IDENTIFIER) {
         return evalNextFunctionCall();
     } else {
-        throw InvalidInputException("Found an unexpected token: " + nextToken_.getContent());
+        throw InvalidInputException("Found an unexpected token: " + getNextToken().getContent());
     }
 }
 
@@ -98,9 +98,9 @@ double Parser::evalNextParenthesisFactor()
     double value = evalNextExpression();
 
     if (!hasNextToken()
-            || nextToken_.getTokenType() != TokenType::OPERATOR
-            || nextToken_.getContent() != ")") {
-        throw InvalidInputException("Expected a closed parenthesis but found token: " + nextToken_.getContent());
+            || getNextToken().getTokenType() != TokenType::OPERATOR
+            || getNextToken().getContent() != ")") {
+        throw InvalidInputException("Expected a closed parenthesis but found token: " + getNextToken().getContent());
     }
     advance();
 
@@ -109,7 +109,7 @@ double Parser::evalNextParenthesisFactor()
 
 double Parser::evalNextFunctionCall() {
     // Match the function name
-    std::string functionName = nextToken_.getContent();
+    std::string functionName = getNextToken().getContent();
     advance();
 
     // Is it a valid function?
@@ -124,7 +124,7 @@ double Parser::evalNextFunctionCall() {
 
 void Parser::skipNewLines()
 {
-    while (hasNextToken() && nextToken_.getTokenType() == TokenType::END_OF_LINE) {
+    while (hasNextToken() && getNextToken().getTokenType() == TokenType::END_OF_LINE) {
         advance();
     }
 }
@@ -135,7 +135,7 @@ void Parser::parseNewLine()
         // Ok
         return;
     }
-    if (nextToken_.getTokenType() != TokenType::END_OF_LINE) {
+    if (getNextToken().getTokenType() != TokenType::END_OF_LINE) {
         throw InvalidInputException("Expected a newline");
     }
     advance();

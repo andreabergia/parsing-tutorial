@@ -15,6 +15,8 @@ enum class TokenType
 class Token
 {
 public:
+    Token() : Token(TokenType::END_OF_INPUT, "") {}
+
     Token(TokenType tokenType, std::string content)
         : tokenType_(tokenType), content_(content)
     {
