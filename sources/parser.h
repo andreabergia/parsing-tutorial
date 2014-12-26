@@ -38,7 +38,10 @@ private:
     };
 
     inline const Token &getNextToken() const { return nextTokens_[0]; }
+    inline const Token &getNextToken(int position) const { return nextTokens_[position]; }
     inline bool hasNextToken() const { return getNextToken().getTokenType() != TokenType::END_OF_INPUT; }
+    inline bool hasNextTokens(int numTokens) const { return nextTokens_[numTokens].getTokenType() != TokenType::END_OF_INPUT; }
+
     void advance();
     void match(TokenType tokenType, std::string content, std::string expected);
 

@@ -43,10 +43,10 @@ void Parser::parseProgram()
         skipNewLines();
 
         // Assignment?
-        if (hasNextToken()
+        if (hasNextTokens(2)
                 && getNextToken().getTokenType() == TokenType::IDENTIFIER
-                && nextTokens_[1].getTokenType() == TokenType::OPERATOR
-                && nextTokens_[1].getContent() == "=") {
+                && getNextToken(1).getTokenType() == TokenType::OPERATOR
+                && getNextToken(1).getContent() == "=") {
             parseAssignment();
         } else {
             parseExpression();
@@ -133,9 +133,10 @@ double Parser::evalNextFactor()
     } else if (getNextToken().getTokenType()  == TokenType::OPERATOR
         && getNextToken().getContent() == "(") {
         return evalNextParenthesisFactor();
-    } else if (getNextToken().getTokenType() == TokenType::IDENTIFIER
-            && nextTokens_[1].getTokenType() == TokenType::OPERATOR
-            && nextTokens_[1].getContent() == "(") {
+    } else if (hasNextTokens(2)
+            && getNextToken().getTokenType() == TokenType::IDENTIFIER
+            && getNextToken(1).getTokenType() == TokenType::OPERATOR
+            && getNextToken(1).getContent() == "(") {
         return evalNextFunctionCall();
     } else if (getNextToken().getTokenType() == TokenType::IDENTIFIER) {
         return evalNextVariable();
