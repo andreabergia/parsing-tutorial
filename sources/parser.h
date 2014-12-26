@@ -17,12 +17,14 @@ public:
     double evalNextExpression();
 
 private:
+    static const int NUM_LOOK_AEAHD_TOKENS = 2;
+
     // A doubleToDoubleFunction is a pointer to a function taking a double and returning a double
     using doubleToDoubleFunction = double(*)(double);
 
     std::ostream &ostream_;
     Lexer lexer_;
-    Token nextToken_;
+    Token nextTokens_[NUM_LOOK_AEAHD_TOKENS];
     std::map<std::string, doubleToDoubleFunction> functions_ {
         {"exp", std::exp},
         {"log", std::log},
@@ -31,8 +33,8 @@ private:
         {"tan", std::tan}
     };
 
-    inline const Token &getNextToken() { return nextToken_; }
-    inline bool hasNextToken() const { return nextToken_.getTokenType() != TokenType::END_OF_INPUT; }
+    inline const Token &getNextToken() const { return nextTokens_[0]; }
+    inline bool hasNextToken() const { return getNextToken().getTokenType() != TokenType::END_OF_INPUT; }
     void advance();
 
     double evalNextTerm();

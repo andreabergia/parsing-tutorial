@@ -7,18 +7,26 @@
 Parser::Parser(std::istream& istream, std::ostream &ostream)
     :lexer_(istream), ostream_(ostream)
 {
-    advance();
+    for (int i = 0; i < NUM_LOOK_AEAHD_TOKENS; ++i) {
+        if (lexer_.hasNextToken()) {
+            nextTokens_[i] = lexer_.nextToken();
+        }
+    }
 }
 
 void Parser::advance()
 {
-    if (lexer_.hasNextToken()) {
-        nextToken_ = lexer_.nextToken();
-    } else {
-        nextToken_ = Token(TokenType::END_OF_INPUT, "");
+    // Shift tokens one position back
+    for (int i = 0; i < NUM_LOOK_AEAHD_TOKENS - 1; ++i) {
+        nextTokens_[i] = nextTokens_[i + 1];
     }
-}
 
+    // Set last available token
+    nextTokens_[NUM_LOOK_AEAHD_TOKENS - 1] =
+            lexer_.hasNextToken()
+                ? lexer_.nextToken()
+                : Token{TokenType::END_OF_INPUT, ""};
+}
 
 void Parser::parseProgram()
 {
