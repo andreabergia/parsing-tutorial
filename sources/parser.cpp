@@ -28,6 +28,15 @@ void Parser::advance()
                 : Token{TokenType::END_OF_INPUT, ""};
 }
 
+void Parser::match(TokenType tokenType, std::string content, std::string expected) {
+    if (!hasNextToken()
+            || getNextToken().getTokenType() != tokenType
+            || getNextToken().getContent() != content) {
+        throw InvalidInputException("Expected " + expected + " but found token: " + getNextToken().getContent());
+    }
+    advance();
+}
+
 void Parser::parseProgram()
 {
     while (hasNextToken()) {
@@ -91,8 +100,12 @@ double Parser::evalNextFactor()
     } else if (getNextToken().getTokenType()  == TokenType::OPERATOR
         && getNextToken().getContent() == "(") {
         return evalNextParenthesisFactor();
-    } else if (getNextToken().getTokenType() == TokenType::IDENTIFIER) {
+    } else if (getNextToken().getTokenType() == TokenType::IDENTIFIER
+            && nextTokens_[1].getTokenType() == TokenType::OPERATOR
+            && nextTokens_[1].getContent() == "(") {
         return evalNextFunctionCall();
+    } else if (getNextToken().getTokenType() == TokenType::IDENTIFIER) {
+        return evalNextVariable();
     } else {
         throw InvalidInputException("Found an unexpected token: " + getNextToken().getContent());
     }
@@ -100,34 +113,42 @@ double Parser::evalNextFactor()
 
 double Parser::evalNextParenthesisFactor()
 {
-    // We match the '(' via advance; parse an expression; then match the ')'
-    advance();
-
+    // Match the '('; parse an expression; then match the ')'
+    match(TokenType::OPERATOR, "(", "an open parenthesis");
     double value = evalNextExpression();
-
-    if (!hasNextToken()
-            || getNextToken().getTokenType() != TokenType::OPERATOR
-            || getNextToken().getContent() != ")") {
-        throw InvalidInputException("Expected a closed parenthesis but found token: " + getNextToken().getContent());
-    }
-    advance();
+    match(TokenType::OPERATOR, ")", "a closed parenthesis");
 
     return value;
 }
 
 double Parser::evalNextFunctionCall() {
-    // Match the function name
+    // Match the function name and the open parenthesis
     std::string functionName = getNextToken().getContent();
     advance();
+    match(TokenType::OPERATOR, "(", "an open parenthesis");
 
     // Is it a valid function?
     doubleToDoubleFunction f = lookupFunctionByName(functionName);
 
-    // Eval its argument
-    double argumentValue = evalNextFactor();
+    // Eval its argument and match the closed parenthesis
+    double argumentValue = evalNextExpression();
+    match(TokenType::OPERATOR, ")", "a closed parenthesis");
 
     // Call the function!
     return f(argumentValue);
+}
+
+double Parser::evalNextVariable() {
+    // Match the variable name
+    std::string variableName = getNextToken().getContent();
+    advance();
+
+    // Lookup its value
+    auto it = variables_.find(variableName);
+    if (it == variables_.end()) {
+        throw UnknownVariableName(variableName);
+    }
+    return it->second;
 }
 
 void Parser::skipNewLines()
@@ -143,10 +164,7 @@ void Parser::parseNewLine()
         // Ok
         return;
     }
-    if (getNextToken().getTokenType() != TokenType::END_OF_LINE) {
-        throw InvalidInputException("Expected a newline");
-    }
-    advance();
+    match(TokenType::END_OF_LINE, "", "newline");
 }
 
 Parser::doubleToDoubleFunction Parser::lookupFunctionByName(const std::string &name)

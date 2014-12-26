@@ -69,12 +69,12 @@ const lest::test testParser[] = {
         EXPECT(approx(2) == parseExpression("1.5 + 1 / 2"));
     },
 
-    CASE("parsing 'exp 1") {
-        EXPECT(approx(M_E) == parseExpression("exp 1"));
+    CASE("parsing 'exp (1)") {
+        EXPECT(approx(M_E) == parseExpression("exp (1)"));
     },
 
-    CASE("parsing 'foo 1") {
-        EXPECT_THROWS_AS(parseExpression("foo 1"), UnknownFunctionName);
+    CASE("parsing 'foo(1)") {
+        EXPECT_THROWS_AS(parseExpression("foo(1)"), UnknownFunctionName);
     },
 
     CASE("parsing 'sin(2 * 3.141592653)") {
@@ -86,7 +86,19 @@ const lest::test testParser[] = {
     },
 
     CASE("parsing 'exp") {
-        EXPECT_THROWS_AS(parseExpression("exp"), InvalidInputException);
+        EXPECT_THROWS_AS(parseExpression("exp"), UnknownVariableName);
+    },
+
+    CASE("parsing 'e + 1'") {
+        EXPECT(approx(M_E + 1) == parseExpression("e + 1"));
+    },
+
+    CASE("parsing 'sin(pi)'") {
+        EXPECT(approx(0) == parseExpression("sin(pi)"));
+    },
+
+    CASE("parsing 'zz'") {
+        EXPECT_THROWS_AS(parseExpression("zz"), UnknownVariableName);
     },
 
     // Programs

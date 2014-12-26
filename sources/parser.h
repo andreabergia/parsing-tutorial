@@ -32,15 +32,21 @@ private:
         {"cos", std::cos},
         {"tan", std::tan}
     };
+    std::map<std::string, double> variables_ {
+        {"e", M_E},
+        {"pi", M_PI}
+    };
 
     inline const Token &getNextToken() const { return nextTokens_[0]; }
     inline bool hasNextToken() const { return getNextToken().getTokenType() != TokenType::END_OF_INPUT; }
     void advance();
+    void match(TokenType tokenType, std::string content, std::string expected);
 
     double evalNextTerm();
     double evalNextFactor();
     double evalNextParenthesisFactor();
     double evalNextFunctionCall();
+    double evalNextVariable();
     void parseNewLine();
     void skipNewLines();
     doubleToDoubleFunction lookupFunctionByName(const std::string &name);

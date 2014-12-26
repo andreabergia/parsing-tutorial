@@ -18,4 +18,11 @@ public:
     }
 };
 
+class UnknownVariableName : public std::runtime_error
+{
+public:
+    UnknownVariableName(const std::string name) : runtime_error("Unknown variable: " + name) {
+    }
+};
+
 #endif
