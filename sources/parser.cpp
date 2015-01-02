@@ -201,7 +201,7 @@ void Parser::parseNewLine()
     match(TokenType::END_OF_LINE, "", "newline");
 }
 
-Parser::doubleToDoubleFunction Parser::lookupFunctionByName(const std::string &name)
+doubleToDoubleFunction Parser::lookupFunctionByName(const std::string &name)
 {
     auto it = functions_.find(name);
     if (it == functions_.end()) {

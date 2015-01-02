@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "lexer.h"
+#include "evaluation.h"
 
 class Parser
 {
@@ -19,20 +20,17 @@ public:
 private:
     static const int NUM_LOOK_AEAHD_TOKENS = 2;
 
-    // A doubleToDoubleFunction is a pointer to a function taking a double and returning a double
-    using doubleToDoubleFunction = double(*)(double);
-
     std::ostream &ostream_;
     Lexer lexer_;
     Token nextTokens_[NUM_LOOK_AEAHD_TOKENS];
-    std::map<std::string, doubleToDoubleFunction> functions_ {
+    functionMap functions_ {
         {"exp", std::exp},
         {"log", std::log},
         {"sin", std::sin},
         {"cos", std::cos},
         {"tan", std::tan}
     };
-    std::map<std::string, double> variables_ {
+    variablesMap variables_ {
         {"e", M_E},
         {"pi", M_PI}
     };

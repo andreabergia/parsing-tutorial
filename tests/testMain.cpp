@@ -5,6 +5,7 @@
 
 #include "testLexer.hpp"
 #include "testParser.hpp"
+#include "testNode.hpp"
 
 template <std::size_t N>
 void addTests(lest::test const (&toAdd)[N], std::vector<lest::test> &tests)
@@ -17,6 +18,7 @@ int main(int argc, char* argv[])
     std::vector<lest::test> tests;
     addTests(testLexer, tests);
     addTests(testParser, tests);
-    
+    addTests(testNode, tests);
+
     return lest::run(tests, lest::texts(argv + 1, argv + argc), std::cout);
 }
