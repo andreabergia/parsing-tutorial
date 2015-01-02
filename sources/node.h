@@ -33,22 +33,64 @@ private:
     double n_;
 };
 
-class AdditionNode : public Node {
+class BinaryOpNode : public Node {
 public:
-    AdditionNode(Node &left, Node &right) : left_(left), right_(right) {}
-    virtual ~AdditionNode() {}
+    using evalFunc = std::function<double(double, double)>;
+    using toStringFunc = std::function<std::string(std::string, std::string)>;
+
+    BinaryOpNode(Node &left, Node &right, toStringFunc toString, evalFunc eval)
+    : left_(left), right_(right), toString_(toString), eval_(eval) {}
+    virtual ~BinaryOpNode() {}
 
     virtual std::string toString() const override {
-        return left_.toString() + " + " + right_.toString();
+        return toString_(left_.toString(), right_.toString());
     }
 
     virtual double eval(EvaluationContext &context) override {
-        return left_.eval(context) + right_.eval(context);
+        return eval_(left_.eval(context), right_.eval(context));
     }
 
 private:
     Node &left_;
     Node &right_;
+    toStringFunc toString_;
+    evalFunc eval_;
+};
+
+class AdditionNode : public BinaryOpNode {
+public:
+    AdditionNode(Node &left, Node &right)
+    : BinaryOpNode(left, right,
+        [](std::string s1, std::string s2){return s1 + " + " + s2;},
+        [](double v1, double v2){return v1 + v2; }) {}
+    virtual ~AdditionNode() {}
+};
+
+class SubtractionNode : public BinaryOpNode {
+public:
+    SubtractionNode(Node &left, Node &right)
+            : BinaryOpNode(left, right,
+            [](std::string s1, std::string s2){return s1 + " - " + s2;},
+            [](double v1, double v2){return v1 - v2; }) {}
+    virtual ~SubtractionNode() {}
+};
+
+class MultiplicationNode : public BinaryOpNode {
+public:
+    MultiplicationNode(Node &left, Node &right)
+            : BinaryOpNode(left, right,
+            [](std::string s1, std::string s2){return s1 + " * " + s2;},
+            [](double v1, double v2){return v1 * v2; }) {}
+    virtual ~MultiplicationNode() {}
+};
+
+class DivisionNode : public BinaryOpNode {
+public:
+    DivisionNode(Node &left, Node &right)
+            : BinaryOpNode(left, right,
+            [](std::string s1, std::string s2){return s1 + " / " + s2;},
+            [](double v1, double v2){return v1 / v2; }) {}
+    virtual ~DivisionNode() {}
 };
 
 #endif
