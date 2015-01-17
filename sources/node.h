@@ -2,8 +2,11 @@
 #define NODE_H
 
 #include <sstream>
+#include <cassert>
+#include <memory>
 
 #include "evaluation.h"
+#include "exceptions.h"
 
 enum class ToStringType {
     TOP_LEVEL,
@@ -18,6 +21,8 @@ public:
     virtual std::string toString(ToStringType toStringType) const = 0;
     virtual double eval(EvaluationContext &context) = 0;
 };
+
+using NodePtr = std::shared_ptr<Node>;
 
 class NumberNode : public Node {
 public:
@@ -43,31 +48,31 @@ public:
     using evalFunc = std::function<double(double, double)>;
     using toStringFunc = std::function<std::string(std::string, std::string)>;
 
-    BinaryOpNode(Node &left, Node &right, toStringFunc toString, evalFunc eval)
+    BinaryOpNode(NodePtr left, NodePtr right, toStringFunc toString, evalFunc eval)
     : left_(left), right_(right), toString_(toString), eval_(eval) {}
     virtual ~BinaryOpNode() {}
 
     virtual std::string toString(ToStringType toStringType) const override {
         std::string s = toString_(
-                left_.toString(ToStringType::RECURSIVE_CALL),
-                right_.toString(ToStringType::RECURSIVE_CALL));
+                left_->toString(ToStringType::RECURSIVE_CALL),
+                right_->toString(ToStringType::RECURSIVE_CALL));
         return toStringType == ToStringType::TOP_LEVEL ? s : "(" + s + ")";
     }
 
     virtual double eval(EvaluationContext &context) override {
-        return eval_(left_.eval(context), right_.eval(context));
+        return eval_(left_->eval(context), right_->eval(context));
     }
 
 private:
-    Node &left_;
-    Node &right_;
+    NodePtr left_;
+    NodePtr right_;
     toStringFunc toString_;
     evalFunc eval_;
 };
 
 class AdditionNode : public BinaryOpNode {
 public:
-    AdditionNode(Node &left, Node &right)
+    AdditionNode(NodePtr left, NodePtr right)
     : BinaryOpNode(left, right,
         [](std::string s1, std::string s2){return s1 + " + " + s2;},
         [](double v1, double v2){return v1 + v2; }) {}
@@ -76,7 +81,7 @@ public:
 
 class SubtractionNode : public BinaryOpNode {
 public:
-    SubtractionNode(Node &left, Node &right)
+    SubtractionNode(NodePtr left, NodePtr right)
             : BinaryOpNode(left, right,
             [](std::string s1, std::string s2){return s1 + " - " + s2;},
             [](double v1, double v2){return v1 - v2; }) {}
@@ -85,7 +90,7 @@ public:
 
 class MultiplicationNode : public BinaryOpNode {
 public:
-    MultiplicationNode(Node &left, Node &right)
+    MultiplicationNode(NodePtr left, NodePtr right)
             : BinaryOpNode(left, right,
             [](std::string s1, std::string s2){return s1 + " * " + s2;},
             [](double v1, double v2){return v1 * v2; }) {}
@@ -94,7 +99,7 @@ public:
 
 class DivisionNode : public BinaryOpNode {
 public:
-    DivisionNode(Node &left, Node &right)
+    DivisionNode(NodePtr left, NodePtr right)
             : BinaryOpNode(left, right,
             [](std::string s1, std::string s2){return s1 + " / " + s2;},
             [](double v1, double v2){return v1 / v2; }) {}
@@ -124,17 +129,17 @@ private:
 
 class FunctionCallNode : public Node {
 public:
-    FunctionCallNode(const std::string &funcName, Node &argument)
+    FunctionCallNode(const std::string &funcName, NodePtr argument)
             : funcName_(funcName), argument_(argument) {}
     ~FunctionCallNode() {};
 
     virtual std::string toString(ToStringType toStringType) const override {
-        std::string call = funcName_ + " " + argument_.toString(ToStringType::RECURSIVE_CALL);
+        std::string call = funcName_ + " " + argument_->toString(ToStringType::RECURSIVE_CALL);
         return toStringType == ToStringType::TOP_LEVEL ? call : "(" + call + ")";
     }
 
     virtual double eval(EvaluationContext &context) override {
-        double arg = argument_.eval(context);
+        double arg = argument_->eval(context);
 
         auto it = context.functions.find(funcName_);
         if (it == context.functions.end()) {
@@ -145,7 +150,7 @@ public:
 
 private:
     std::string funcName_;
-    Node &argument_;
+    NodePtr argument_;
 };
 
 #endif
