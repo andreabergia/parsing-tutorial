@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "parser.h"
-#include "exceptions.h"
 
 Parser::Parser(std::istream& istream, std::ostream &ostream)
     :lexer_(istream), ostream_(ostream)
@@ -67,69 +66,67 @@ void Parser::parseAssignment()
     // Match =
     match(TokenType::OPERATOR, "=", "the assigment operator =");
 
-    // Get expression value
-    double value = evalNextExpression();
-
-    // Save the variable value
-    variables_[variableName] = value;
-}
+    // Get the expression as a node, evaluate it and save the variable value
+    NodePtr node = getNextExpressionNode();
+    variables_[variableName] = evalNode(node);
+};
 
 void Parser::parseExpression()
 {
-    double value = evalNextExpression();
-    ostream_ << value << std::endl;
+    NodePtr node = getNextExpressionNode();
+    ostream_ << evalNode(node) << std::endl;
 }
 
-double Parser::evalNextExpression()
+NodePtr Parser::getNextExpressionNode()
 {
     // First handle multiplication and parenthesis
-    double value = evalNextTerm();
+    NodePtr node = evalNextTerm();
 
     // Next handle additions and subtractions. They have lower precedences, so they are handled AFTER.
     while (hasNextToken() && getNextToken().getTokenType() == TokenType::OPERATOR) {
         if (getNextToken().getContent() == "+") {
             advance();
-            value += evalNextTerm();
+            node = NodePtr(new AdditionNode(node, evalNextTerm()));
         } else if (getNextToken().getContent() == "-") {
             advance();
-            value -= evalNextTerm();
+            node = NodePtr(new SubtractionNode(node, evalNextTerm()));
         } else {
             // An operator, but not '+' or '-': let the caller handle it.
             break;
         }
     }
 
-    return value;
+    return node;
 }
 
-double Parser::evalNextTerm()
+NodePtr Parser::evalNextTerm()
 {
     // First handle numbers and parenthesis
-    double value = evalNextFactor();
+    NodePtr node = evalNextFactor();
 
     // Next handle multiplications and divisions
     while (hasNextToken() && getNextToken().getTokenType() == TokenType::OPERATOR) {
         if (getNextToken().getContent() == "*") {
             advance();
-            value *= evalNextFactor();
+            node = NodePtr(new MultiplicationNode(node, evalNextFactor()));
         } else if (getNextToken().getContent() == "/") {
             advance();
-            value /= evalNextFactor();
+            node = NodePtr(new DivisionNode(node, evalNextFactor()));
         } else {
             // An operator, but not '*' or '/': let the caller handle it.
             break;
         }
     }
 
-    return value;
+    return node;
 }
 
-double Parser::evalNextFactor()
+NodePtr Parser::evalNextFactor()
 {
     if (getNextToken().getTokenType() == TokenType::NUMBER) {
         double value = atof(getNextToken().getContent().c_str());
         advance();
-        return value;
+        return NodePtr(new NumberNode(value));
     } else if (getNextToken().getTokenType()  == TokenType::OPERATOR
         && getNextToken().getContent() == "(") {
         return evalNextParenthesisFactor();
@@ -145,44 +142,37 @@ double Parser::evalNextFactor()
     }
 }
 
-double Parser::evalNextParenthesisFactor()
+NodePtr Parser::evalNextParenthesisFactor()
 {
     // Match the '('; parse an expression; then match the ')'
     match(TokenType::OPERATOR, "(", "an open parenthesis");
-    double value = evalNextExpression();
+    NodePtr node = getNextExpressionNode();
     match(TokenType::OPERATOR, ")", "a closed parenthesis");
 
-    return value;
+    return node;
 }
 
-double Parser::evalNextFunctionCall() {
+NodePtr Parser::evalNextFunctionCall() {
     // Match the function name and the open parenthesis
     std::string functionName = getNextToken().getContent();
     advance();
     match(TokenType::OPERATOR, "(", "an open parenthesis");
 
-    // Is it a valid function?
-    doubleToDoubleFunction f = lookupFunctionByName(functionName);
-
-    // Eval its argument and match the closed parenthesis
-    double argumentValue = evalNextExpression();
+    // Parse its argument as a node and match the closed parenthesis
+    NodePtr argument = getNextExpressionNode();
     match(TokenType::OPERATOR, ")", "a closed parenthesis");
 
-    // Call the function!
-    return f(argumentValue);
+    // Make a function call node
+    return NodePtr(new FunctionCallNode(functionName, argument));
 }
 
-double Parser::evalNextVariable() {
+NodePtr Parser::evalNextVariable() {
     // Match the variable name
     std::string variableName = getNextToken().getContent();
     advance();
 
-    // Lookup its value
-    auto it = variables_.find(variableName);
-    if (it == variables_.end()) {
-        throw UnknownVariableName(variableName);
-    }
-    return it->second;
+    // Make a variable access node
+    return NodePtr(new VariableNode(variableName));
 }
 
 void Parser::skipNewLines()
@@ -201,11 +191,8 @@ void Parser::parseNewLine()
     match(TokenType::END_OF_LINE, "", "newline");
 }
 
-doubleToDoubleFunction Parser::lookupFunctionByName(const std::string &name)
+double Parser::evalNode(NodePtr node)
 {
-    auto it = functions_.find(name);
-    if (it == functions_.end()) {
-        throw UnknownFunctionName(name);
-    }
-    return it->second;
+    EvaluationContext evaluationContext(functions_, variables_);
+    return node->eval(evaluationContext);
 }

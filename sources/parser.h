@@ -8,6 +8,7 @@
 
 #include "lexer.h"
 #include "evaluation.h"
+#include "node.h"
 
 class Parser
 {
@@ -15,7 +16,10 @@ public:
     Parser(std::istream& istream, std::ostream &ostream = std::cout);
 
     void parseProgram();
-    double evalNextExpression();
+
+    // Public only to simplify unit tests; in real code they would be private
+    NodePtr getNextExpressionNode();
+    double evalNode(NodePtr node);
 
 private:
     static const int NUM_LOOK_AEAHD_TOKENS = 2;
@@ -45,14 +49,13 @@ private:
 
     void parseAssignment();
     void parseExpression();
-    double evalNextTerm();
-    double evalNextFactor();
-    double evalNextParenthesisFactor();
-    double evalNextFunctionCall();
-    double evalNextVariable();
+    NodePtr evalNextTerm();
+    NodePtr evalNextFactor();
+    NodePtr evalNextParenthesisFactor();
+    NodePtr evalNextFunctionCall();
+    NodePtr evalNextVariable();
     void parseNewLine();
     void skipNewLines();
-    doubleToDoubleFunction lookupFunctionByName(const std::string &name);
 };
 
 #endif

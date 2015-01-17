@@ -12,7 +12,7 @@ double parseExpression(std::string expression)
 {
     std::istringstream input{expression};
     Parser parser(input);
-    return parser.evalNextExpression();
+    return parser.evalNode(parser.getNextExpressionNode());
 }
 
 std::string parseProgramOutput(std::string program)
