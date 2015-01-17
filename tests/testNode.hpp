@@ -4,7 +4,7 @@
 #include "../sources/node.h"
 
 double evalNode(Node &node) {
-    functionMap functions;
+    functionMap functions {{"sin", std::sin}, {"cos", std::cos}, {"exp", std::exp}, {"log", std::log}};
     variablesMap  variables {{"a", 0.8}, {"b", 1.2}};
     EvaluationContext ec(functions, variables);
 
@@ -76,5 +76,29 @@ const lest::test testNode[] = {
         EXPECT("zz" == node.toString(ToStringType::TOP_LEVEL));
         EXPECT("zz" == node.toString(ToStringType::RECURSIVE_CALL));
         EXPECT_THROWS_AS(evalNode(node), UnknownVariableName);
+    },
+
+    CASE("Function node") {
+        NumberNode n0(0);
+        FunctionCallNode node("sin", n0);
+        EXPECT("sin 0" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("(sin 0)" == node.toString(ToStringType::RECURSIVE_CALL));
+        EXPECT(approx(0.) == evalNode(node));
+    },
+
+    CASE("Unknown function name") {
+        NumberNode n0(0);
+        FunctionCallNode node("foo", n0);
+        EXPECT("foo 0" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("(foo 0)" == node.toString(ToStringType::RECURSIVE_CALL));
+        EXPECT_THROWS_AS(evalNode(node), UnknownFunctionName);
+    },
+    CASE("Recursive function call") {
+        NumberNode n0(0);
+        FunctionCallNode nSin("sin", n0);
+        FunctionCallNode node("exp", nSin);
+        EXPECT("exp (sin 0)" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("(exp (sin 0))" == node.toString(ToStringType::RECURSIVE_CALL));
+        EXPECT(approx(1.) == evalNode(node));
     }
 };

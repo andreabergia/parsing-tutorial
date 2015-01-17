@@ -122,4 +122,30 @@ private:
     std::string varName_;
 };
 
+class FunctionCallNode : public Node {
+public:
+    FunctionCallNode(const std::string &funcName, Node &argument)
+            : funcName_(funcName), argument_(argument) {}
+    ~FunctionCallNode() {};
+
+    virtual std::string toString(ToStringType toStringType) const override {
+        std::string call = funcName_ + " " + argument_.toString(ToStringType::RECURSIVE_CALL);
+        return toStringType == ToStringType::TOP_LEVEL ? call : "(" + call + ")";
+    }
+
+    virtual double eval(EvaluationContext &context) override {
+        double arg = argument_.eval(context);
+
+        auto it = context.functions.find(funcName_);
+        if (it == context.functions.end()) {
+            throw UnknownFunctionName(funcName_);
+        }
+        return it->second(arg);
+    }
+
+private:
+    std::string funcName_;
+    Node &argument_;
+};
+
 #endif
