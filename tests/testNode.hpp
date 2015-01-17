@@ -14,37 +14,37 @@ double evalNode(Node &node) {
 const lest::test testNode[] = {
     CASE("NumberNode") {
         NumberNode node(0.5);
-        EXPECT("0.5" == node.toString(true));
-        EXPECT("0.5" == node.toString(false));
+        EXPECT("0.5" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("0.5" == node.toString(ToStringType::RECURSIVE_CALL));
         EXPECT(approx(0.5) == evalNode(node));
     },
 
     CASE("AdditionNode") {
         NumberNode n1(1), n2(2);
         AdditionNode node(n1, n2);
-        EXPECT("1 + 2" == node.toString(true));
-        EXPECT("(1 + 2)" == node.toString(false));
+        EXPECT("1 + 2" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("(1 + 2)" == node.toString(ToStringType::RECURSIVE_CALL));
         EXPECT(approx(3) == evalNode(node));
     },
     CASE("SubtractionNode") {
         NumberNode n1(1), n2(2);
         SubtractionNode node(n1, n2);
-        EXPECT("1 - 2" == node.toString(true));
-        EXPECT("(1 - 2)" == node.toString(false));
+        EXPECT("1 - 2" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("(1 - 2)" == node.toString(ToStringType::RECURSIVE_CALL));
         EXPECT(approx(-1) == evalNode(node));
     },
     CASE("MultiplicationNode") {
         NumberNode n2(2), n3(3);
         MultiplicationNode node(n2, n3);
-        EXPECT("2 * 3" == node.toString(true));
-        EXPECT("(2 * 3)" == node.toString(false));
+        EXPECT("2 * 3" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("(2 * 3)" == node.toString(ToStringType::RECURSIVE_CALL));
         EXPECT(approx(6) == evalNode(node));
     },
     CASE("DivisionNode") {
         NumberNode n1(1), n2(2);
         DivisionNode node(n1, n2);
-        EXPECT("1 / 2" == node.toString(true));
-        EXPECT("(1 / 2)" == node.toString(false));
+        EXPECT("1 / 2" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("(1 / 2)" == node.toString(ToStringType::RECURSIVE_CALL));
         EXPECT(approx(0.5) == evalNode(node));
     },
 
@@ -52,7 +52,7 @@ const lest::test testNode[] = {
         NumberNode n1(1), n2(2), n3(3);
         MultiplicationNode n2times3(n2, n3);
         AdditionNode node(n2times3, n1);
-        EXPECT("(2 * 3) + 1" == node.toString(true));
+        EXPECT("(2 * 3) + 1" == node.toString(ToStringType::TOP_LEVEL));
         EXPECT(approx(7) == evalNode(node));
     },
     CASE("Recursive Nodes 2") {
@@ -61,20 +61,20 @@ const lest::test testNode[] = {
         DivisionNode n4dividedBy2(n4, n2);
         SubtractionNode n7minusn4dividedBy2(n7, n4dividedBy2);
         DivisionNode node(n1plus3, n7minusn4dividedBy2);
-        EXPECT("(1 + 3) / (7 - (4 / 2))" == node.toString(true));
+        EXPECT("(1 + 3) / (7 - (4 / 2))" == node.toString(ToStringType::TOP_LEVEL));
         EXPECT(approx(0.8) == evalNode(node));
     },
 
     CASE("Variable node") {
         VariableNode node("a");
-        EXPECT("a" == node.toString(true));
-        EXPECT("a" == node.toString(false));
+        EXPECT("a" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("a" == node.toString(ToStringType::RECURSIVE_CALL));
         EXPECT(approx(0.8) == evalNode(node));
     },
     CASE("Unknown variable name") {
         VariableNode node("zz");
-        EXPECT("zz" == node.toString(true));
-        EXPECT("zz" == node.toString(false));
+        EXPECT("zz" == node.toString(ToStringType::TOP_LEVEL));
+        EXPECT("zz" == node.toString(ToStringType::RECURSIVE_CALL));
         EXPECT_THROWS_AS(evalNode(node), UnknownVariableName);
     }
 };

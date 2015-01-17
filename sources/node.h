@@ -5,12 +5,17 @@
 
 #include "evaluation.h"
 
+enum class ToStringType {
+    TOP_LEVEL,
+    RECURSIVE_CALL
+};
+
 class Node
 {
 public:
     virtual ~Node() {}
 
-    virtual std::string toString(bool isTopLevel) const = 0;
+    virtual std::string toString(ToStringType toStringType) const = 0;
     virtual double eval(EvaluationContext &context) = 0;
 };
 
@@ -19,7 +24,7 @@ public:
     NumberNode(double n) : n_(n) {}
     virtual ~NumberNode() {}
 
-    virtual std::string toString(bool isTopLevel) const override {
+    virtual std::string toString(ToStringType toStringType) const override {
         std::ostringstream oss;
         oss << n_;
         return oss.str();
@@ -42,9 +47,11 @@ public:
     : left_(left), right_(right), toString_(toString), eval_(eval) {}
     virtual ~BinaryOpNode() {}
 
-    virtual std::string toString(bool isTopLevel) const override {
-        std::string s = toString_(left_.toString(false), right_.toString(false));
-        return isTopLevel ? s : "(" + s + ")";
+    virtual std::string toString(ToStringType toStringType) const override {
+        std::string s = toString_(
+                left_.toString(ToStringType::RECURSIVE_CALL),
+                right_.toString(ToStringType::RECURSIVE_CALL));
+        return toStringType == ToStringType::TOP_LEVEL ? s : "(" + s + ")";
     }
 
     virtual double eval(EvaluationContext &context) override {
@@ -99,7 +106,7 @@ public:
     VariableNode(const std::string &varName) : varName_(varName) {}
     ~VariableNode() {};
 
-    virtual std::string toString(bool isTopLevel) const override {
+    virtual std::string toString(ToStringType toStringType) const override {
         return varName_;
     }
 
