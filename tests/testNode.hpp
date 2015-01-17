@@ -5,7 +5,7 @@
 
 double evalNode(Node &node) {
     functionMap functions;
-    variablesMap  variables;
+    variablesMap  variables {{"a", 0.8}, {"b", 1.2}};
     EvaluationContext ec(functions, variables);
 
     return node.eval(ec);
@@ -64,4 +64,17 @@ const lest::test testNode[] = {
         EXPECT("(1 + 3) / (7 - (4 / 2))" == node.toString(true));
         EXPECT(approx(0.8) == evalNode(node));
     },
+
+    CASE("Variable node") {
+        VariableNode node("a");
+        EXPECT("a" == node.toString(true));
+        EXPECT("a" == node.toString(false));
+        EXPECT(approx(0.8) == evalNode(node));
+    },
+    CASE("Unknown variable name") {
+        VariableNode node("zz");
+        EXPECT("zz" == node.toString(true));
+        EXPECT("zz" == node.toString(false));
+        EXPECT_THROWS_AS(evalNode(node), UnknownVariableName);
+    }
 };

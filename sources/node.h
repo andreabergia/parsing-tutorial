@@ -94,4 +94,25 @@ public:
     virtual ~DivisionNode() {}
 };
 
+class VariableNode : public Node {
+public:
+    VariableNode(const std::string &varName) : varName_(varName) {}
+    ~VariableNode() {};
+
+    virtual std::string toString(bool isTopLevel) const override {
+        return varName_;
+    }
+
+    virtual double eval(EvaluationContext &context) override {
+        auto it = context.variables.find(varName_);
+        if (it == context.variables.end()) {
+            throw UnknownVariableName(varName_);
+        }
+        return it->second;
+    }
+
+private:
+    std::string varName_;
+};
+
 #endif
