@@ -116,11 +116,7 @@ public:
     }
 
     virtual double eval(EvaluationContext &context) override {
-        auto it = context.variables.find(varName_);
-        if (it == context.variables.end()) {
-            throw UnknownVariableName(varName_);
-        }
-        return it->second;
+        return context.getVariableValue(varName_);
     }
 
 private:
@@ -129,28 +125,23 @@ private:
 
 class FunctionCallNode : public Node {
 public:
-    FunctionCallNode(const std::string &funcName, NodePtr argument)
-            : funcName_(funcName), argument_(argument) {}
+    FunctionCallNode(const std::string &funcName, NodePtr argumentExpression)
+            : funcName_(funcName), argumentExpression_(argumentExpression) {}
     ~FunctionCallNode() {};
 
     virtual std::string toString(ToStringType toStringType) const override {
-        std::string call = funcName_ + " " + argument_->toString(ToStringType::RECURSIVE_CALL);
+        std::string call = funcName_ + " " + argumentExpression_->toString(ToStringType::RECURSIVE_CALL);
         return toStringType == ToStringType::TOP_LEVEL ? call : "(" + call + ")";
     }
 
     virtual double eval(EvaluationContext &context) override {
-        double arg = argument_->eval(context);
-
-        auto it = context.functions.find(funcName_);
-        if (it == context.functions.end()) {
-            throw UnknownFunctionName(funcName_);
-        }
-        return it->second(arg);
+        double arg = argumentExpression_->eval(context);
+        return context.callFunction(funcName_, arg);
     }
 
 private:
     std::string funcName_;
-    NodePtr argument_;
+    NodePtr argumentExpression_;
 };
 
 #endif

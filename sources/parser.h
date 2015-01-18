@@ -27,13 +27,7 @@ private:
     std::ostream &ostream_;
     Lexer lexer_;
     Token nextTokens_[NUM_LOOK_AEAHD_TOKENS];
-    functionMap functions_ {
-        {"exp", std::exp},
-        {"log", std::log},
-        {"sin", std::sin},
-        {"cos", std::cos},
-        {"tan", std::tan}
-    };
+    userFunctionsMap userDefinedFunctions_;
     variablesMap variables_ {
         {"e", M_E},
         {"pi", M_PI}

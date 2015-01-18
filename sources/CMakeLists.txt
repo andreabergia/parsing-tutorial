@@ -2,7 +2,7 @@ add_library (derivativeLib
                 exceptions.h
                 token.h
                 lexer.h lexer.cpp
-                evaluation.h
+                evaluation.h evaluation.cpp
                 node.h
                 parser.h parser.cpp
                 utility.h utility.cpp)

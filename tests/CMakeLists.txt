@@ -8,6 +8,7 @@ add_executable(runTests
                 testLexer.hpp
                 testParser.hpp
                 testNode.hpp
+                testEvaluation.hpp
                 testMain.cpp)
 
 add_dependencies(runTests derivativeLib)

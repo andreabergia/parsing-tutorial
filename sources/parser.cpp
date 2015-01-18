@@ -6,6 +6,7 @@
 Parser::Parser(std::istream& istream, std::ostream &ostream)
     :lexer_(istream), ostream_(ostream)
 {
+    // Fetch look-ahead tokens
     for (int i = 0; i < NUM_LOOK_AEAHD_TOKENS; ++i) {
         if (lexer_.hasNextToken()) {
             nextTokens_[i] = lexer_.nextToken();
@@ -57,7 +58,7 @@ void Parser::parseProgram()
 void Parser::parseAssignment()
 {
     // Match variable name
-    if (!hasNextToken() || getNextToken().getTokenType() != TokenType::IDENTIFIER){
+    if (!hasNextToken() || getNextToken().getTokenType() != TokenType::IDENTIFIER) {
         throw InvalidInputException("Found an unexpected token: " + getNextToken().getContent());
     }
     std::string variableName = getNextToken().getContent();
@@ -193,6 +194,6 @@ void Parser::parseNewLine()
 
 double Parser::evalNode(NodePtr node)
 {
-    EvaluationContext evaluationContext(functions_, variables_);
+    EvaluationContext evaluationContext(userDefinedFunctions_, variables_);
     return node->eval(evaluationContext);
 }

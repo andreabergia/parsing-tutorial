@@ -4,9 +4,8 @@
 #include "../sources/node.h"
 
 double evalNode(NodePtr node) {
-    functionMap functions {{"sin", std::sin}, {"cos", std::cos}, {"exp", std::exp}, {"log", std::log}};
-    variablesMap  variables {{"a", 0.8}, {"b", 1.2}};
-    EvaluationContext ec(functions, variables);
+    variablesMap variables {{"a", 0.8}, {"b", 1.2}};
+    EvaluationContext ec(userFunctionsMap(), variables);
     return node->eval(ec);
 }
 
