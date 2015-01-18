@@ -114,11 +114,20 @@ const lest::test testParser[] = {
         EXPECT("3\n4\n" == parseProgramOutput("\n3\n\n4"));
     },
 
+    // Programs with variables
     CASE("parsing program a = 3 EOL a * 7 should print 21 EOL") {
         EXPECT("21\n" == parseProgramOutput("a = 3\na * 7\n"));
     },
 
     CASE("parsing program a = 3 EOL b = a * 7 EOL a = b + 1 EOL a should print 22 EOL") {
         EXPECT("22\n" == parseProgramOutput("a = 3\nb = a * 7\na = b + 1\na"));
+    },
+
+    // Programs with functions
+    CASE("parsing program def f x = 1 + sin(x) EOL f(0) EOL should print 1 EOL") {
+        EXPECT("1\n" == parseProgramOutput("def f x = 1 + sin(x)\nf(0)\n"));
+    },
+    CASE("parsing program def double x = x * 2 EOL def square y = y * y EOL square(double(1)) EOL should print 4 EOL") {
+        EXPECT("4\n" == parseProgramOutput("def double x = x * 2\ndef square y = y * y\nsquare(double(1))\n"));
     }
 };

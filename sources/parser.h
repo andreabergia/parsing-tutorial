@@ -42,6 +42,7 @@ private:
     void match(TokenType tokenType, std::string content, std::string expected);
 
     void parseAssignment();
+    void parseFunctionDefinition();
     void parseExpression();
     NodePtr evalNextTerm();
     NodePtr evalNextFactor();

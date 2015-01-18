@@ -48,6 +48,11 @@ void Parser::parseProgram()
                 && getNextToken(1).getTokenType() == TokenType::OPERATOR
                 && getNextToken(1).getContent() == "=") {
             parseAssignment();
+        } else if (hasNextTokens(2)
+                && getNextToken().getTokenType() == TokenType::IDENTIFIER
+                && getNextToken().getContent() == "def"
+                && getNextToken(1).getTokenType() == TokenType::IDENTIFIER) {
+            parseFunctionDefinition();
         } else {
             parseExpression();
         }
@@ -71,6 +76,33 @@ void Parser::parseAssignment()
     NodePtr node = getNextExpressionNode();
     variables_[variableName] = evalNode(node);
 };
+
+void Parser::parseFunctionDefinition()
+{
+    match(TokenType::IDENTIFIER, "def", "the keyword def");
+
+    // Match function name
+    if (!hasNextToken() || getNextToken().getTokenType() != TokenType::IDENTIFIER) {
+        throw InvalidInputException("Found an unexpected token: " + getNextToken().getContent());
+    }
+    std::string functionName = getNextToken().getContent();
+    advance();
+
+    // Match parameter name
+    if (!hasNextToken() || getNextToken().getTokenType() != TokenType::IDENTIFIER) {
+        throw InvalidInputException("Found an unexpected token: " + getNextToken().getContent());
+    }
+    std::string parameterName = getNextToken().getContent();
+    advance();
+
+    match(TokenType::OPERATOR, "=", "the = operator");
+
+    // Match function definition
+    NodePtr definition = getNextExpressionNode();
+
+    UserFunctionPtr newFunctionDefinition = UserFunctionPtr(new UserFunction {functionName, parameterName, definition});
+    userDefinedFunctions_[functionName] = newFunctionDefinition;
+}
 
 void Parser::parseExpression()
 {
