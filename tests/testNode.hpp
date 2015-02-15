@@ -98,5 +98,59 @@ const lest::test testNode[] = {
         EXPECT("exp (sin 0)" == node->toString(ToStringType::TOP_LEVEL));
         EXPECT("(exp (sin 0))" == node->toString(ToStringType::RECURSIVE_CALL));
         EXPECT(approx(1.) == evalNode(node));
+    },
+
+    // Derivative
+    CASE("Derivative NumberNode") {
+        NodePtr node(new NumberNode(0.5));
+        EXPECT("0" == node->derivative("x")->toString(ToStringType::TOP_LEVEL));
+    },
+    CASE("Derivative Variable node") {
+        NodePtr node(new VariableNode("x"));
+        EXPECT("1" == node->derivative("x")->toString(ToStringType::TOP_LEVEL));
+        EXPECT("0" == node->derivative("y")->toString(ToStringType::TOP_LEVEL));
+    },
+    CASE("Derivative AdditionNode") {
+        NodePtr n1(new NumberNode(1));
+        NodePtr x(new VariableNode("x"));
+        NodePtr node(new AdditionNode(n1, x));
+        EXPECT("1 + x" == node->toString(ToStringType::TOP_LEVEL));
+        EXPECT("0 + 1" == node->derivative("x")->toString(ToStringType::TOP_LEVEL));
+    },
+    CASE("Derivative SubtractioNode") {
+        NodePtr x(new VariableNode("x"));
+        NodePtr n2(new NumberNode(2));
+        NodePtr node(new SubtractionNode(x, n2));
+        EXPECT("x - 2" == node->toString(ToStringType::TOP_LEVEL));
+        EXPECT("1 - 0" == node->derivative("x")->toString(ToStringType::TOP_LEVEL));
+    },
+    CASE("Derivative MultiplicationNode") {
+        NodePtr x(new VariableNode("x"));
+        NodePtr y(new VariableNode("y"));
+        NodePtr node(new MultiplicationNode(x, y));
+        EXPECT("x * y" == node->toString(ToStringType::TOP_LEVEL));
+        EXPECT("(1 * y) + (x * 0)" == node->derivative("x")->toString(ToStringType::TOP_LEVEL));
+    },
+    CASE("Derivative DivisionNode") {
+        NodePtr x(new VariableNode("x"));
+        NodePtr y(new VariableNode("y"));
+        NodePtr node(new DivisionNode(x, y));
+        EXPECT("x / y" == node->toString(ToStringType::TOP_LEVEL));
+        EXPECT("((1 * y) - (x * 0)) / (y * y)" == node->derivative("x")->toString(ToStringType::TOP_LEVEL));
+    },
+
+    CASE("Derivative FunctionCallNode 1") {
+        NodePtr x(new VariableNode("x"));
+        NodePtr node(new FunctionCallNode("sin", x));
+        EXPECT("sin x" == node->toString(ToStringType::TOP_LEVEL));
+        EXPECT("(sin' x) * 1" == node->derivative("x")->toString(ToStringType::TOP_LEVEL));
+    },
+    CASE("Derivative FunctionCallNode 2") {
+        NodePtr x(new VariableNode("x"));
+        NodePtr n2(new NumberNode(2));
+        NodePtr x2(new MultiplicationNode(x, n2));
+        NodePtr node(new FunctionCallNode("sin", x2));
+        EXPECT("sin (x * 2)" == node->toString(ToStringType::TOP_LEVEL));
+        EXPECT("(sin' (x * 2)) * ((1 * 2) + (x * 0))" == node->derivative("x")->toString(ToStringType::TOP_LEVEL));
     }
 };

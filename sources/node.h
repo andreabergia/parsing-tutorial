@@ -20,6 +20,7 @@ public:
 
     virtual std::string toString(ToStringType toStringType) const = 0;
     virtual double eval(EvaluationContext &context) = 0;
+    virtual NodePtr derivative(const std::string &argument) const = 0;
 };
 
 using NodePtr = std::shared_ptr<Node>;
@@ -33,6 +34,10 @@ public:
         std::ostringstream oss;
         oss << n_;
         return oss.str();
+    }
+
+    virtual NodePtr derivative(const std::string &argument) const override {
+        return NodePtr(new NumberNode(0));
     }
 
     virtual double eval(EvaluationContext &context) override {
@@ -63,9 +68,11 @@ public:
         return eval_(left_->eval(context), right_->eval(context));
     }
 
-private:
+protected:
     NodePtr left_;
     NodePtr right_;
+
+private:
     toStringFunc toString_;
     evalFunc eval_;
 };
@@ -77,6 +84,11 @@ public:
         [](std::string s1, std::string s2){return s1 + " + " + s2;},
         [](double v1, double v2){return v1 + v2; }) {}
     virtual ~AdditionNode() {}
+
+    virtual NodePtr derivative(const std::string &argument) const override {
+        return NodePtr(new AdditionNode(
+                left_->derivative(argument), right_->derivative(argument)));
+    }
 };
 
 class SubtractionNode : public BinaryOpNode {
@@ -86,6 +98,11 @@ public:
             [](std::string s1, std::string s2){return s1 + " - " + s2;},
             [](double v1, double v2){return v1 - v2; }) {}
     virtual ~SubtractionNode() {}
+
+    virtual NodePtr derivative(const std::string &argument) const override {
+        return NodePtr(new SubtractionNode(
+                left_->derivative(argument), right_->derivative(argument)));
+    }
 };
 
 class MultiplicationNode : public BinaryOpNode {
@@ -95,6 +112,13 @@ public:
             [](std::string s1, std::string s2){return s1 + " * " + s2;},
             [](double v1, double v2){return v1 * v2; }) {}
     virtual ~MultiplicationNode() {}
+
+    virtual NodePtr derivative(const std::string &argument) const override {
+        // (f g)' = f' g + f g'
+        NodePtr f_g = NodePtr(new MultiplicationNode(left_->derivative(argument), right_));
+        NodePtr fg_ = NodePtr(new MultiplicationNode(left_, right_->derivative(argument)));
+        return NodePtr(new AdditionNode(f_g, fg_));
+    }
 };
 
 class DivisionNode : public BinaryOpNode {
@@ -104,6 +128,15 @@ public:
             [](std::string s1, std::string s2){return s1 + " / " + s2;},
             [](double v1, double v2){return v1 / v2; }) {}
     virtual ~DivisionNode() {}
+
+    virtual NodePtr derivative(const std::string &argument) const override {
+        // (f / g)' = (f'g - fg') / g^2
+        NodePtr f_g = NodePtr(new MultiplicationNode(left_->derivative(argument), right_));
+        NodePtr fg_ = NodePtr(new MultiplicationNode(left_, right_->derivative(argument)));
+        NodePtr g2 = NodePtr(new MultiplicationNode(right_, right_));
+        NodePtr num = NodePtr(new SubtractionNode(f_g, fg_));
+        return NodePtr(new DivisionNode(num, g2));
+    }
 };
 
 class VariableNode : public Node {
@@ -117,6 +150,14 @@ public:
 
     virtual double eval(EvaluationContext &context) override {
         return context.getVariableValue(varName_);
+    }
+
+    virtual NodePtr derivative(const std::string &argument) const override {
+        if (varName_ == argument) {
+            return NodePtr(new NumberNode(1));
+        } else {
+            return NodePtr(new NumberNode(0));
+        }
     }
 
 private:
@@ -137,6 +178,13 @@ public:
     virtual double eval(EvaluationContext &context) override {
         double arg = argumentExpression_->eval(context);
         return context.callFunction(funcName_, arg);
+    }
+
+    virtual NodePtr derivative(const std::string &argument) const override {
+        // f(g)' = f'(g) g'
+        NodePtr f_g = NodePtr(new FunctionCallNode(funcName_ + "'", argumentExpression_));
+        NodePtr g_ = argumentExpression_->derivative(argument);
+        return NodePtr(new MultiplicationNode(f_g, g_));
     }
 
 private:
