@@ -53,6 +53,11 @@ void Parser::parseProgram()
                 && getNextToken().getContent() == "def"
                 && getNextToken(1).getTokenType() == TokenType::IDENTIFIER) {
             parseFunctionDefinition();
+        } else if (hasNextTokens(2)
+                && getNextToken().getTokenType() == TokenType::IDENTIFIER
+                && getNextToken().getContent() == "der"
+                && getNextToken(1).getTokenType() == TokenType::IDENTIFIER) {
+            parseDerivative();
         } else {
             parseExpression();
         }
@@ -102,6 +107,29 @@ void Parser::parseFunctionDefinition()
 
     UserFunctionPtr newFunctionDefinition = UserFunctionPtr(new UserFunction {functionName, parameterName, definition});
     userDefinedFunctions_[functionName] = newFunctionDefinition;
+}
+
+void Parser::parseDerivative()
+{
+    match(TokenType::IDENTIFIER, "der", "the keyword der");
+
+    // Match function name
+    if (!hasNextToken() || getNextToken().getTokenType() != TokenType::IDENTIFIER) {
+        throw InvalidInputException("Found an unexpected token: " + getNextToken().getContent());
+    }
+    std::string functionName = getNextToken().getContent();
+    advance();
+
+    // Find the function
+    auto it = userDefinedFunctions_.find(functionName);
+    if (it == userDefinedFunctions_.end()) {
+        throw UnknownFunctionName(functionName);
+    }
+    UserFunctionPtr func = it->second;
+
+    // Derive and print it
+    NodePtr derivative = func->derivative();
+    ostream_ << derivative->toString(ToStringType::TOP_LEVEL) << std::endl;
 }
 
 void Parser::parseExpression()

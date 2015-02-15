@@ -129,5 +129,10 @@ const lest::test testParser[] = {
     },
     CASE("parsing program def double x = x * 2 EOL def square y = y * y EOL square(double(1)) EOL should print 4 EOL") {
         EXPECT("4\n" == parseProgramOutput("def double x = x * 2\ndef square y = y * y\nsquare(double(1))\n"));
+    },
+
+    // Program with derivatives
+    CASE("parsing program def f x = 2 * x - sin(x) EOL der f EOL should print ((0 * x) + (2 * 1)) - ((sin' x) * 1)") {
+        EXPECT("((0 * x) + (2 * 1)) - ((sin' x) * 1)\n" == parseProgramOutput("def f x = 2 * x - sin(x)\nder f\n"));
     }
 };

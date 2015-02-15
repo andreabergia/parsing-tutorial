@@ -19,6 +19,8 @@ struct UserFunction {
     std::string name;
     std::string argumentName;
     NodePtr bodyNode;
+
+    NodePtr derivative() const;
 };
 using UserFunctionPtr = std::shared_ptr<UserFunction>;
 

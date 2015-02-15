@@ -43,3 +43,8 @@ double EvaluationContext::callUserDefinedFunction(UserFunctionPtr userFunction, 
     EvaluationContext innerScope(userFunctions_, innerScopeVariables);
     return userFunction->bodyNode->eval(innerScope);
 }
+
+NodePtr UserFunction::derivative() const
+{
+    return bodyNode->derivative(argumentName);
+}

@@ -43,6 +43,7 @@ private:
 
     void parseAssignment();
     void parseFunctionDefinition();
+    void parseDerivative();
     void parseExpression();
     NodePtr evalNextTerm();
     NodePtr evalNextFactor();
